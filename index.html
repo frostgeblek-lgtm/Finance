@@ -1,1910 +1,2200 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finance & Investment</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-tailwind.config = {
-  darkMode: 'class',
-  theme: {
-    extend: {
-      colors: {
-        slate: { 950: '#0a0f1e' },
-        brand: { DEFAULT: '#38bdf8', dark: '#0ea5e9' }
-      },
-      fontFamily: {
-        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
-        sans: ['Inter', 'system-ui', 'sans-serif']
-      }
-    }
-  }
-}
-</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<title>LifeForge — Complex Life Simulator</title>
 <style>
-  * { box-sizing: border-box; }
-  body { background: #0a0f1e; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-  
-  .glass { background: rgba(15,23,42,0.8); backdrop-filter: blur(12px); border: 1px solid rgba(148,163,184,0.1); }
-  .glass-card { background: rgba(15,23,42,0.9); border: 1px solid rgba(148,163,184,0.08); border-radius: 12px; }
-  
-  .neon-green { color: #4ade80; }
-  .neon-red { color: #f87171; }
-  .neon-blue { color: #38bdf8; }
-  .neon-yellow { color: #fbbf24; }
-  .neon-purple { color: #a78bfa; }
-  
-  .tab-btn { transition: all 0.2s; border-bottom: 2px solid transparent; }
-  .tab-btn.active { color: #38bdf8; border-bottom-color: #38bdf8; }
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
-  
-  .toast-item { animation: slideIn 0.3s ease; }
-  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-  
-  .pulse-green { animation: pulseG 2s infinite; }
-  @keyframes pulseG { 0%,100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); } 50% { box-shadow: 0 0 0 6px rgba(74,222,128,0); } }
-  
-  .btn-primary { background: linear-gradient(135deg, #0ea5e9, #6366f1); border: none; transition: all 0.2s; }
-  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 15px rgba(14,165,233,0.3); }
-  .btn-primary:active { transform: translateY(0); }
-  
-  .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); border: none; transition: all 0.2s; }
-  .btn-danger:hover { opacity: 0.9; transform: translateY(-1px); }
-  
-  .btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); border: none; transition: all 0.2s; }
-  .btn-success:hover { opacity: 0.9; transform: translateY(-1px); }
-  
-  .btn-warn { background: linear-gradient(135deg, #f59e0b, #d97706); border: none; transition: all 0.2s; }
-  .btn-warn:hover { opacity: 0.9; transform: translateY(-1px); }
-  
-  .mini-chart { position: relative; width: 100%; height: 40px; }
-  
-  .log-entry { border-left: 3px solid; padding: 6px 10px; margin: 4px 0; border-radius: 0 6px 6px 0; font-size: 0.78rem; }
-  .log-info { border-color: #38bdf8; background: rgba(56,189,248,0.05); }
-  .log-gain { border-color: #4ade80; background: rgba(74,222,128,0.05); }
-  .log-loss { border-color: #f87171; background: rgba(248,113,113,0.05); }
-  .log-event { border-color: #fbbf24; background: rgba(251,191,36,0.05); }
-  .log-warn { border-color: #a78bfa; background: rgba(167,139,250,0.05); }
-  
-  .progress-bar { height: 6px; border-radius: 3px; background: rgba(148,163,184,0.15); overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-  
-  input[type="number"] { background: rgba(30,41,59,0.8); border: 1px solid rgba(148,163,184,0.15); color: #e2e8f0; border-radius: 6px; padding: 6px 10px; font-size: 0.85rem; outline: none; transition: border-color 0.2s; }
-  input[type="number"]:focus { border-color: #38bdf8; }
-  input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
-  
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.03em; }
-  
-  .economy-GROWTH { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
-  .economy-BOOM { background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); }
-  .economy-RECESSION { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
-  .economy-DEPRESSION { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
-  
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: rgba(15,23,42,0.5); }
-  ::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.2); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,0.35); }
-  
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 100; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-  .modal-box { background: #0f172a; border: 1px solid rgba(148,163,184,0.15); border-radius: 16px; padding: 32px; max-width: 500px; width: 90%; }
-  
-  .net-worth-bar { height: 8px; background: linear-gradient(90deg, #6366f1, #38bdf8, #4ade80); border-radius: 4px; }
-  
-  .ticker-flash-up { animation: flashUp 0.5s ease; }
-  .ticker-flash-down { animation: flashDown 0.5s ease; }
-  @keyframes flashUp { 0% { background: rgba(74,222,128,0.3); } 100% { background: transparent; } }
-  @keyframes flashDown { 0% { background: rgba(248,113,113,0.3); } 100% { background: transparent; } }
-  
-  .end-turn-btn { position: relative; overflow: hidden; }
-  .end-turn-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%); transform: translateX(-100%); transition: transform 0.5s; }
-  .end-turn-btn:hover::after { transform: translateX(100%); }
+/* ===== DESIGN SYSTEM ===== */
+:root {
+  --bg-base: #0a0c0f;
+  --bg-panel: #10141a;
+  --bg-card: #161c24;
+  --bg-hover: #1e2632;
+  --border: #1e2a38;
+  --border-bright: #2a3a52;
+  --accent: #3b82f6;
+  --accent-glow: rgba(59,130,246,0.15);
+  --accent2: #8b5cf6;
+  --green: #22c55e;
+  --yellow: #eab308;
+  --red: #ef4444;
+  --orange: #f97316;
+  --cyan: #06b6d4;
+  --text-primary: #e2e8f0;
+  --text-secondary: #7a8fa8;
+  --text-muted: #4a5e72;
+  --font-mono: 'Courier New', monospace;
+  --font-ui: system-ui, -apple-system, sans-serif;
+  --radius: 6px;
+  --radius-lg: 10px;
+  --shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: var(--font-ui); background: var(--bg-base); color: var(--text-primary); font-size: 13px; overflow: hidden; }
+
+/* ===== LAYOUT ===== */
+#app { display: flex; flex-direction: column; height: 100vh; }
+#header { background: var(--bg-panel); border-bottom: 1px solid var(--border); padding: 8px 16px; display: flex; align-items: center; gap: 16px; flex-shrink: 0; z-index: 10; }
+#main { display: flex; flex: 1; overflow: hidden; }
+#sidebar-left { width: 240px; flex-shrink: 0; background: var(--bg-panel); border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
+#center { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+#sidebar-right { width: 260px; flex-shrink: 0; background: var(--bg-panel); border-left: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
+
+/* ===== HEADER ELEMENTS ===== */
+.hdr-logo { font-size: 16px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.hdr-logo span { color: var(--accent2); }
+.hdr-stat { display: flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); }
+.hdr-stat-label { color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+.hdr-stat-val { font-weight: 600; font-size: 14px; }
+.hdr-sep { flex: 1; }
+.hdr-notif { flex: 0 0 340px; font-size: 11px; color: var(--text-secondary); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#btn-age { padding: 6px 20px; background: linear-gradient(135deg,var(--accent),var(--accent2)); color: #fff; border: none; border-radius: var(--radius); font-weight: 700; cursor: pointer; font-size: 13px; transition: opacity .2s; letter-spacing: 0.3px; }
+#btn-age:hover { opacity: 0.85; }
+#btn-age:disabled { opacity: 0.4; cursor: default; }
+
+/* ===== SIDEBAR LEFT — TABS ===== */
+.tab-list { display: flex; flex-direction: column; border-bottom: 1px solid var(--border); }
+.tab-btn { padding: 10px 14px; cursor: pointer; border: none; background: none; color: var(--text-secondary); text-align: left; font-size: 12px; font-weight: 500; transition: all .15s; display: flex; align-items: center; gap: 8px; }
+.tab-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.tab-btn.active { background: var(--accent-glow); color: var(--accent); border-right: 2px solid var(--accent); }
+.tab-icon { width: 16px; text-align: center; }
+.tab-content { display: none; flex-direction: column; gap: 1px; padding: 8px; flex: 1; overflow-y: auto; }
+.tab-content.active { display: flex; }
+
+/* ===== CARDS & PANELS ===== */
+.panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px; }
+.panel-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; margin-bottom: 6px; }
+.card:last-child { margin-bottom: 0; }
+
+/* ===== STAT BARS ===== */
+.stat-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.stat-label { width: 70px; font-size: 11px; color: var(--text-secondary); flex-shrink: 0; }
+.stat-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+.stat-bar { height: 100%; border-radius: 3px; transition: width .4s ease; }
+.stat-val { width: 30px; text-align: right; font-size: 11px; font-weight: 600; color: var(--text-primary); flex-shrink: 0; }
+
+/* ===== ACTION BUTTONS ===== */
+.act-btn { width: 100%; padding: 8px 10px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; color: var(--text-primary); text-align: left; transition: all .15s; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+.act-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-glow); }
+.act-btn:disabled { opacity: 0.4; cursor: default; }
+.act-btn-name { font-size: 12px; font-weight: 500; }
+.act-btn-desc { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.act-btn-cost { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+.cost-ap { font-size: 10px; color: var(--cyan); font-weight: 600; }
+.cost-money { font-size: 10px; color: var(--yellow); }
+
+/* ===== LOG FEED ===== */
+#log-feed { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 6px; min-height: 300px; }
+.log-entry { padding: 8px 10px; border-radius: var(--radius); border-left: 3px solid transparent; font-size: 12px; line-height: 1.5; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.log-info { border-left-color: var(--accent); background: rgba(59,130,246,0.06); }
+.log-warn { border-left-color: var(--yellow); background: rgba(234,179,8,0.06); }
+.log-danger { border-left-color: var(--red); background: rgba(239,68,68,0.08); }
+.log-success { border-left-color: var(--green); background: rgba(34,197,94,0.06); }
+.log-event { border-left-color: var(--accent2); background: rgba(139,92,246,0.08); }
+.log-time { font-size: 10px; color: var(--text-muted); margin-bottom: 2px; }
+.log-text { color: var(--text-primary); }
+
+/* ===== DIALOG / CHOICE ===== */
+#dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; display: none; align-items: center; justify-content: center; }
+#dialog-overlay.active { display: flex; }
+#dialog-box { background: var(--bg-panel); border: 1px solid var(--border-bright); border-radius: var(--radius-lg); padding: 20px; max-width: 480px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.7); }
+.dialog-title { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+.dialog-subtitle { font-size: 11px; color: var(--text-muted); margin-bottom: 14px; }
+.dialog-body { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6; }
+.dialog-choices { display: flex; flex-direction: column; gap: 6px; }
+.dialog-choice { padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; color: var(--text-primary); font-size: 12px; text-align: left; transition: all .15s; }
+.dialog-choice:hover { border-color: var(--accent); background: var(--accent-glow); }
+.dialog-choice-cost { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+/* ===== NPC LIST ===== */
+.npc-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; margin-bottom: 6px; }
+.npc-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.npc-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.npc-name { font-size: 12px; font-weight: 600; }
+.npc-relation { font-size: 10px; color: var(--text-muted); }
+.npc-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.npc-act { padding: 3px 8px; background: var(--bg-hover); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 10px; color: var(--text-secondary); transition: all .15s; }
+.npc-act:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ===== FINANCIAL PANEL ===== */
+.fin-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.fin-row:last-child { border-bottom: none; }
+.fin-label { color: var(--text-secondary); }
+.fin-val { font-weight: 600; }
+.fin-val.pos { color: var(--green); }
+.fin-val.neg { color: var(--red); }
+.fin-val.neu { color: var(--text-primary); }
+
+/* ===== INVESTMENT ROW ===== */
+.inv-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: var(--bg-hover); border-radius: var(--radius); margin-bottom: 4px; cursor: pointer; border: 1px solid transparent; transition: all .15s; }
+.inv-row:hover { border-color: var(--accent); }
+.inv-name { flex: 1; font-size: 11px; font-weight: 500; }
+.inv-price { font-size: 11px; font-weight: 600; }
+.inv-change { font-size: 10px; width: 50px; text-align: right; }
+.inv-change.up { color: var(--green); }
+.inv-change.dn { color: var(--red); }
+.inv-owned { font-size: 10px; color: var(--text-muted); width: 60px; text-align: right; }
+
+/* ===== MINI BADGES ===== */
+.badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 99px; font-size: 10px; font-weight: 600; gap: 3px; }
+.badge-blue { background: rgba(59,130,246,0.15); color: var(--accent); }
+.badge-purple { background: rgba(139,92,246,0.15); color: var(--accent2); }
+.badge-green { background: rgba(34,197,94,0.15); color: var(--green); }
+.badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
+.badge-yellow { background: rgba(234,179,8,0.15); color: var(--yellow); }
+.badge-orange { background: rgba(249,115,22,0.15); color: var(--orange); }
+
+/* ===== TRAITS PANEL ===== */
+.trait-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; font-size: 10px; margin: 2px; border: 1px solid var(--border); background: var(--bg-hover); color: var(--text-secondary); }
+
+/* ===== SCROLLBARS ===== */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+/* ===== PROGRESS RING ===== */
+.ap-ring { position: relative; width: 36px; height: 36px; }
+.ap-ring svg { transform: rotate(-90deg); }
+.ap-ring-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: var(--cyan); }
+
+/* ===== GAME OVER ===== */
+#gameover { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 200; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 16px; text-align: center; }
+#gameover.active { display: flex; }
+.go-title { font-size: 32px; font-weight: 900; color: var(--red); letter-spacing: -1px; }
+.go-sub { font-size: 16px; color: var(--text-secondary); }
+.go-stats { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; max-width: 400px; width: 90%; }
+.go-stat-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+.go-restart { padding: 12px 32px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+
+/* ===== RESPONSIVE CLAMP ===== */
+@media (max-width: 900px) { #sidebar-right { display: none; } }
+@media (max-width: 600px) { #sidebar-left { width: 180px; } }
+
+/* Section headers in left panel */
+.section-hdr { padding: 8px 8px 4px; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); font-weight: 700; }
+
+/* Tooltip */
+[title] { cursor: help; }
+
+/* Trait positive/negative coloring */
+.trait-pos { border-color: rgba(34,197,94,0.3); color: var(--green); }
+.trait-neg { border-color: rgba(239,68,68,0.3); color: var(--red); }
+.trait-neu { border-color: rgba(59,130,246,0.3); color: var(--accent); }
+
+/* AP bar highlight */
+.ap-low { color: var(--red) !important; }
+.ap-med { color: var(--yellow) !important; }
+.ap-ok { color: var(--cyan) !important; }
+
+/* Company panel */
+.company-row { display: flex; justify-content: space-between; font-size: 11px; padding: 3px 0; }
+.company-row span:first-child { color: var(--text-muted); }
+
+/* Stock portfolio mini */
+.portfolio-entry { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.portfolio-entry:last-child { border-bottom: none; }
+
+/* Input fields */
+.sim-input { background: var(--bg-hover); border: 1px solid var(--border); color: var(--text-primary); padding: 5px 8px; border-radius: var(--radius); font-size: 12px; width: 100%; }
+.sim-input:focus { outline: none; border-color: var(--accent); }
+
+/* Two-col layout inside panels */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+/* Prison indicator */
+.prison-bar { background: repeating-linear-gradient(-45deg, transparent, transparent 5px, rgba(239,68,68,0.1) 5px, rgba(239,68,68,0.1) 10px); border: 1px solid rgba(239,68,68,0.3); border-radius: var(--radius); padding: 8px; color: var(--red); font-size: 11px; text-align: center; margin-bottom: 8px; }
+
+/* Ticker animation */
+@keyframes tickerMove { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+.ticker-wrap { overflow: hidden; flex: 1; }
+.ticker-inner { display: flex; gap: 20px; animation: tickerMove 20s linear infinite; white-space: nowrap; font-size: 11px; }
+.ticker-item { color: var(--text-muted); }
+.ticker-item .up { color: var(--green); }
+.ticker-item .dn { color: var(--red); }
 </style>
 </head>
-<body class="text-slate-200 min-h-screen">
+<body>
 
-<!-- MODAL: Game Over / Win -->
-<div id="gameModal" class="modal-overlay" style="display:none;">
-  <div class="modal-box text-center">
-    <div id="modalIcon" class="text-6xl mb-4"></div>
-    <h2 id="modalTitle" class="text-2xl font-bold mb-2"></h2>
-    <p id="modalSubtitle" class="text-slate-400 mb-2"></p>
-    <p id="modalStats" class="text-slate-300 text-sm mb-6 font-mono"></p>
-    <button onclick="restartGame()" class="btn-primary text-white font-semibold py-3 px-8 rounded-lg cursor-pointer">Play Again</button>
+<!-- GAME OVER SCREEN -->
+<div id="gameover">
+  <div class="go-title">☠ GAME OVER</div>
+  <div class="go-sub" id="go-cause">You have passed away.</div>
+  <div class="go-stats" id="go-stats"></div>
+  <button class="go-restart" onclick="initGame()">Start New Life</button>
+</div>
+
+<!-- DIALOG OVERLAY -->
+<div id="dialog-overlay">
+  <div id="dialog-box">
+    <div class="dialog-title" id="dlg-title"></div>
+    <div class="dialog-subtitle" id="dlg-sub"></div>
+    <div class="dialog-body" id="dlg-body"></div>
+    <div class="dialog-choices" id="dlg-choices"></div>
   </div>
 </div>
 
-<!-- MODAL: Event Alert -->
-<div id="eventModal" class="modal-overlay" style="display:none;">
-  <div class="modal-box">
-    <div class="flex items-center gap-3 mb-4">
-      <span id="eventIcon" class="text-3xl"></span>
-      <div>
-        <h3 id="eventTitle" class="text-lg font-bold text-yellow-400"></h3>
-        <p class="text-slate-500 text-xs">Life Event</p>
-      </div>
+<!-- APP -->
+<div id="app">
+  <!-- HEADER -->
+  <div id="header">
+    <div class="hdr-logo">Life<span>Forge</span></div>
+    <div class="hdr-stat">
+      <span class="hdr-stat-label">Age</span>
+      <span class="hdr-stat-val" id="hdr-age">0</span>
     </div>
-    <p id="eventDesc" class="text-slate-300 text-sm mb-6 leading-relaxed"></p>
-    <div id="eventChoices" class="space-y-2"></div>
-    <button id="eventDismiss" onclick="dismissEvent()" class="mt-4 w-full btn-primary text-white font-semibold py-2.5 rounded-lg cursor-pointer" style="display:none;">Continue</button>
+    <div class="hdr-stat">
+      <span class="hdr-stat-label">Quarter</span>
+      <span class="hdr-stat-val" id="hdr-quarter">Q1</span>
+    </div>
+    <div class="hdr-stat">
+      <span class="hdr-stat-label">AP</span>
+      <span class="hdr-stat-val" id="hdr-ap" style="color:var(--cyan)">100</span>
+    </div>
+    <div class="hdr-stat">
+      <span class="hdr-stat-label">Cash</span>
+      <span class="hdr-stat-val" id="hdr-money" style="color:var(--green)">$0</span>
+    </div>
+    <div class="hdr-stat">
+      <span class="hdr-stat-label">Net Worth</span>
+      <span class="hdr-stat-val" id="hdr-nw" style="color:var(--yellow)">$0</span>
+    </div>
+    <div class="hdr-sep"></div>
+    <!-- TICKER -->
+    <div class="ticker-wrap" id="ticker-wrap">
+      <div class="ticker-inner" id="ticker">Loading market data...</div>
+    </div>
+    <div class="hdr-sep" style="max-width:12px"></div>
+    <button id="btn-age" onclick="advanceQuarter()">▶ Next Quarter</button>
   </div>
-</div>
 
-<!-- HEADER -->
-<header class="glass sticky top-0 z-50 px-4 py-3">
-  <div class="max-w-screen-2xl mx-auto flex items-center justify-between flex-wrap gap-3">
-    <div class="flex items-center gap-3">
-      <div class="text-xl font-bold neon-blue font-mono tracking-tight">FINANCE & INVESTMENT</div>
-      <div class="h-4 w-px bg-slate-700"></div>
-      <span class="text-slate-500 text-xs">The Market Master</span>
+  <!-- MAIN -->
+  <div id="main">
+    <!-- SIDEBAR LEFT -->
+    <div id="sidebar-left">
+      <div class="tab-list">
+        <button class="tab-btn active" onclick="switchTab('status')" id="tab-status">
+          <span class="tab-icon">📊</span> Status
+        </button>
+        <button class="tab-btn" onclick="switchTab('activities')" id="tab-activities">
+          <span class="tab-icon">⚡</span> Activities
+        </button>
+        <button class="tab-btn" onclick="switchTab('finance')" id="tab-finance">
+          <span class="tab-icon">💰</span> Finance
+        </button>
+        <button class="tab-btn" onclick="switchTab('invest')" id="tab-invest">
+          <span class="tab-icon">📈</span> Market
+        </button>
+        <button class="tab-btn" onclick="switchTab('relations')" id="tab-relations">
+          <span class="tab-icon">❤️</span> Relations
+        </button>
+        <button class="tab-btn" onclick="switchTab('career')" id="tab-career">
+          <span class="tab-icon">💼</span> Career
+        </button>
+      </div>
+
+      <!-- TAB: STATUS -->
+      <div class="tab-content active" id="content-status">
+        <div class="section-hdr">Physical</div>
+        <div id="stats-physical"></div>
+        <div class="section-hdr">Mental</div>
+        <div id="stats-mental"></div>
+        <div class="section-hdr">Social</div>
+        <div id="stats-social"></div>
+        <div class="section-hdr">Traits</div>
+        <div id="traits-panel" style="padding:4px 0;"></div>
+        <div class="section-hdr" style="margin-top:6px;">Life Stage</div>
+        <div id="life-stage-info" style="padding:4px 8px;font-size:11px;color:var(--text-secondary);"></div>
+      </div>
+
+      <!-- TAB: ACTIVITIES -->
+      <div class="tab-content" id="content-activities">
+        <div id="prison-notice" style="display:none" class="prison-bar">🔒 INCARCERATED<br><span id="prison-time"></span></div>
+        <div id="activities-list"></div>
+      </div>
+
+      <!-- TAB: FINANCE -->
+      <div class="tab-content" id="content-finance">
+        <div id="finance-panel"></div>
+      </div>
+
+      <!-- TAB: MARKET -->
+      <div class="tab-content" id="content-invest">
+        <div id="market-panel"></div>
+      </div>
+
+      <!-- TAB: RELATIONS -->
+      <div class="tab-content" id="content-relations">
+        <div id="relations-panel"></div>
+      </div>
+
+      <!-- TAB: CAREER -->
+      <div class="tab-content" id="content-career">
+        <div id="career-panel"></div>
+      </div>
     </div>
-    
-    <div class="flex items-center gap-4 flex-wrap">
-      <div class="flex items-center gap-1.5">
-        <span class="text-slate-500 text-xs">AGE</span>
-        <span id="hdrAge" class="font-mono font-bold text-white text-sm">18</span>
+
+    <!-- CENTER: LOG FEED -->
+    <div id="center">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600;">LIFE LOG — REAL-TIME EVENTS</div>
+        <button onclick="clearLog()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:10px;">Clear</button>
       </div>
-      <div class="h-4 w-px bg-slate-700"></div>
-      <div class="flex items-center gap-1.5">
-        <span class="text-slate-500 text-xs">MONTH</span>
-        <span id="hdrMonth" class="font-mono text-sm text-slate-300">Jan 1990</span>
-      </div>
-      <div class="h-4 w-px bg-slate-700"></div>
-      <div class="flex items-center gap-1.5">
-        <span class="text-slate-500 text-xs">CASH</span>
-        <span id="hdrCash" class="font-mono font-bold neon-green text-sm">$10,000</span>
-      </div>
-      <div class="h-4 w-px bg-slate-700"></div>
-      <div class="flex items-center gap-1.5">
-        <span class="text-slate-500 text-xs">NET WORTH</span>
-        <span id="hdrNetWorth" class="font-mono font-bold text-white text-sm">-$20,000</span>
-      </div>
-      <div class="h-4 w-px bg-slate-700"></div>
-      <div id="hdrEconomy" class="badge economy-GROWTH">● GROWTH</div>
+      <div id="log-feed"></div>
     </div>
-    
-    <button onclick="endTurn()" id="endTurnBtn" class="end-turn-btn btn-primary text-white font-bold py-2.5 px-6 rounded-lg cursor-pointer text-sm tracking-wide pulse-green">
-      ▶ END TURN
-    </button>
+
+    <!-- SIDEBAR RIGHT -->
+    <div id="sidebar-right">
+      <div style="padding:10px 10px 4px;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;">Character</div>
+      <div style="padding:4px 10px 10px;" id="char-profile"></div>
+
+      <div style="padding:4px 10px;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;">Active Events</div>
+      <div id="active-events" style="padding:4px 10px;"></div>
+
+      <div style="padding:4px 10px;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;">World State</div>
+      <div id="world-state" style="padding:4px 10px 10px;"></div>
+
+      <div style="padding:4px 10px;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;">Debt Tracker</div>
+      <div id="debt-panel" style="padding:4px 10px 10px;"></div>
+
+      <div style="padding:4px 10px;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;">Business</div>
+      <div id="business-panel" style="padding:4px 10px 10px;"></div>
+
+      <div style="padding:4px 10px;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted);font-weight:700;">Property</div>
+      <div id="property-panel" style="padding:4px 10px 10px;"></div>
+    </div>
   </div>
-</header>
-
-<!-- PROGRESS: Net Worth to Goal -->
-<div class="px-4 py-1.5 bg-slate-900/50 border-b border-slate-800">
-  <div class="max-w-screen-2xl mx-auto flex items-center gap-3">
-    <span class="text-slate-500 text-xs whitespace-nowrap">Goal: $2M</span>
-    <div class="flex-1 progress-bar">
-      <div id="goalProgress" class="progress-fill net-worth-bar" style="width:0%"></div>
-    </div>
-    <span id="goalPct" class="text-slate-500 text-xs font-mono whitespace-nowrap">0.0%</span>
-    <div class="h-3 w-px bg-slate-700 mx-1"></div>
-    <span class="text-slate-500 text-xs whitespace-nowrap">Turn <span id="hdrTurn" class="text-slate-300">1</span></span>
-  </div>
-</div>
-
-<!-- MAIN LAYOUT -->
-<div class="max-w-screen-2xl mx-auto px-4 py-4 flex gap-4">
-
-  <!-- SIDEBAR: Financial Statement -->
-  <aside class="w-72 shrink-0 space-y-3">
-    
-    <!-- Income Statement -->
-    <div class="glass-card p-4">
-      <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Income Statement</h3>
-      <div class="space-y-1.5 text-sm">
-        <div class="text-slate-500 text-xs uppercase tracking-wider mt-1 mb-1">Income</div>
-        <div class="flex justify-between"><span class="text-slate-400">Salary</span><span id="incomeSalary" class="font-mono neon-green">$3,500</span></div>
-        <div class="flex justify-between"><span class="text-slate-400">Dividends</span><span id="incomeDivs" class="font-mono neon-green">$0</span></div>
-        <div class="flex justify-between"><span class="text-slate-400">Rental</span><span id="incomeRental" class="font-mono neon-green">$0</span></div>
-        <div class="flex justify-between"><span class="text-slate-400">Savings Int.</span><span id="incomeSavings" class="font-mono neon-green">$0</span></div>
-        <div class="flex justify-between border-t border-slate-700 pt-1.5 mt-1.5"><span class="text-slate-300 font-medium">Total In</span><span id="totalIncome" class="font-mono neon-green font-bold">$3,500</span></div>
-        
-        <div class="text-slate-500 text-xs uppercase tracking-wider mt-3 mb-1">Expenses</div>
-        <div class="flex justify-between"><span class="text-slate-400">Living</span><span id="expLiving" class="font-mono neon-red">-$2,000</span></div>
-        <div class="flex justify-between"><span class="text-slate-400">Loan Payment</span><span id="expLoan" class="font-mono neon-red">-$300</span></div>
-        <div class="flex justify-between"><span class="text-slate-400">Insurance</span><span id="expInsurance" class="font-mono neon-red">-$0</span></div>
-        <div class="flex justify-between"><span class="text-slate-400">Prop. Costs</span><span id="expProperty" class="font-mono neon-red">-$0</span></div>
-        <div class="flex justify-between border-t border-slate-700 pt-1.5 mt-1.5"><span class="text-slate-300 font-medium">Total Out</span><span id="totalExpenses" class="font-mono neon-red font-bold">-$2,300</span></div>
-        
-        <div class="flex justify-between border-t-2 border-slate-600 pt-2 mt-2">
-          <span class="text-white font-bold">Net Cash Flow</span>
-          <span id="netCashFlow" class="font-mono font-bold text-lg">$1,200</span>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Balance Sheet -->
-    <div class="glass-card p-4">
-      <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Balance Sheet</h3>
-      <div class="space-y-1.5 text-sm">
-        <div class="text-slate-500 text-xs uppercase tracking-wider mb-1">Assets</div>
-        <div class="flex justify-between"><span class="text-slate-400">Cash</span><span id="bsCash" class="font-mono text-white">$10,000</span></div>
-        <div class="flex justify-between"><span class="text-slate-400">Stocks</span><span id="bsStocks" class="font-mono text-white">$0</span></div>
-        <div class="flex justify-between"><span class="text-slate-400">Crypto</span><span id="bsCrypto" class="font-mono text-white">$0</span></div>
-        <div class="flex justify-between"><span class="text-slate-400">Real Estate</span><span id="bsRE" class="font-mono text-white">$0</span></div>
-        <div class="flex justify-between border-t border-slate-700 pt-1.5 mt-1.5"><span class="text-slate-300 font-medium">Total Assets</span><span id="bsTotalAssets" class="font-mono neon-blue font-bold">$10,000</span></div>
-        
-        <div class="text-slate-500 text-xs uppercase tracking-wider mt-3 mb-1">Liabilities</div>
-        <div class="flex justify-between"><span class="text-slate-400">Student Loan</span><span id="bsStudentLoan" class="font-mono neon-red">$30,000</span></div>
-        <div class="flex justify-between"><span class="text-slate-400">Mortgages</span><span id="bsMortgage" class="font-mono neon-red">$0</span></div>
-        <div class="flex justify-between border-t border-slate-700 pt-1.5 mt-1.5"><span class="text-slate-300 font-medium">Total Liab.</span><span id="bsTotalLiab" class="font-mono neon-red font-bold">$30,000</span></div>
-        
-        <div class="flex justify-between border-t-2 border-slate-600 pt-2 mt-2">
-          <span class="text-white font-bold">Net Worth</span>
-          <span id="bsNetWorth" class="font-mono font-bold text-lg">-$20,000</span>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Credit Score & Stats -->
-    <div class="glass-card p-4">
-      <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Player Stats</h3>
-      <div class="space-y-3">
-        <div>
-          <div class="flex justify-between text-sm mb-1">
-            <span class="text-slate-400">Credit Score</span>
-            <span id="creditScoreVal" class="font-mono neon-yellow">680</span>
-          </div>
-          <div class="progress-bar">
-            <div id="creditScoreBar" class="progress-fill" style="width:34%;background:linear-gradient(90deg,#f87171,#fbbf24,#4ade80)"></div>
-          </div>
-          <div id="creditScoreLabel" class="text-xs text-slate-500 mt-0.5 text-right">Good</div>
-        </div>
-        <div>
-          <div class="flex justify-between text-sm mb-1">
-            <span class="text-slate-400">Inflation Rate</span>
-            <span id="inflationVal" class="font-mono text-slate-300">2.0%</span>
-          </div>
-          <div class="progress-bar">
-            <div id="inflationBar" class="progress-fill" style="width:20%;background:#f59e0b"></div>
-          </div>
-        </div>
-        <div>
-          <div class="flex justify-between text-sm mb-1">
-            <span class="text-slate-400">Age Progress</span>
-            <span class="font-mono text-slate-300">18 → 65</span>
-          </div>
-          <div class="progress-bar">
-            <div id="ageBar" class="progress-fill" style="width:0%;background:linear-gradient(90deg,#38bdf8,#a78bfa)"></div>
-          </div>
-        </div>
-        <div class="pt-1 border-t border-slate-700">
-          <div class="flex justify-between text-sm mb-1">
-            <span class="text-slate-400">Career Level</span>
-            <span id="careerLevel" class="font-mono neon-blue text-xs">Junior Analyst</span>
-          </div>
-          <div class="flex justify-between text-sm">
-            <span class="text-slate-400">Health Ins.</span>
-            <span id="healthInsStatus" class="text-xs font-semibold text-red-400">✗ None</span>
-          </div>
-          <div class="flex justify-between text-sm mt-1">
-            <span class="text-slate-400">Market Sentiment</span>
-            <span id="marketSentiment" class="text-xs font-semibold">😐 Neutral</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <main class="flex-1 space-y-3 min-w-0">
-    
-    <!-- Tabs -->
-    <div class="glass-card">
-      <div class="flex border-b border-slate-800 px-4">
-        <button onclick="switchTab('markets')" id="tab-markets" class="tab-btn active py-3 px-4 text-sm font-medium text-slate-400 hover:text-white">📈 Markets</button>
-        <button onclick="switchTab('realestate')" id="tab-realestate" class="tab-btn py-3 px-4 text-sm font-medium text-slate-400 hover:text-white">🏠 Real Estate & Bank</button>
-        <button onclick="switchTab('career')" id="tab-career" class="tab-btn py-3 px-4 text-sm font-medium text-slate-400 hover:text-white">💼 Career & Insurance</button>
-      </div>
-      
-      <!-- TAB 1: MARKETS -->
-      <div id="content-markets" class="tab-content active p-4">
-        
-        <!-- Portfolio Summary -->
-        <div id="portfolioSummary" class="mb-4 p-3 rounded-lg bg-slate-900/50 border border-slate-800 hidden">
-          <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2">Your Portfolio</h4>
-          <div id="portfolioList" class="space-y-1 text-sm"></div>
-        </div>
-        
-        <!-- Stock Market -->
-        <div class="mb-5">
-          <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-            <span>📊 Stock Market</span>
-            <span class="text-slate-700">—</span>
-            <span id="stockMarketNote" class="text-slate-600 normal-case font-normal tracking-normal">Equities</span>
-          </h4>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <!-- Index Fund -->
-            <div class="glass-card p-3" id="card-indexFund">
-              <div class="flex justify-between items-start mb-1">
-                <div>
-                  <div class="font-semibold text-sm text-white">Index Fund</div>
-                  <div class="text-xs text-slate-500">Low Risk · 7-10% annual</div>
-                </div>
-                <div class="text-right">
-                  <div id="price-indexFund" class="font-mono font-bold neon-green text-sm">$100.00</div>
-                  <div id="change-indexFund" class="text-xs font-mono">+0.00%</div>
-                </div>
-              </div>
-              <canvas id="chart-indexFund" width="220" height="40" class="w-full mb-2"></canvas>
-              <div class="text-xs text-slate-500 mb-2">Held: <span id="held-indexFund" class="text-slate-300 font-mono">0 shares</span> · Value: <span id="value-indexFund" class="text-slate-300 font-mono">$0</span></div>
-              <div class="flex gap-2">
-                <input type="number" id="buy-indexFund" placeholder="Shares to buy" min="1" class="flex-1 w-0" />
-                <button onclick="buyStock('indexFund')" class="btn-success text-white text-xs px-3 py-1.5 rounded-lg cursor-pointer font-semibold">BUY</button>
-                <button onclick="sellStock('indexFund')" class="btn-danger text-white text-xs px-3 py-1.5 rounded-lg cursor-pointer font-semibold">SELL</button>
-              </div>
-            </div>
-            
-            <!-- Tech Stock -->
-            <div class="glass-card p-3" id="card-techStock">
-              <div class="flex justify-between items-start mb-1">
-                <div>
-                  <div class="font-semibold text-sm text-white">Tech Stock</div>
-                  <div class="text-xs text-slate-500">High Risk · Volatile</div>
-                </div>
-                <div class="text-right">
-                  <div id="price-techStock" class="font-mono font-bold neon-green text-sm">$50.00</div>
-                  <div id="change-techStock" class="text-xs font-mono">+0.00%</div>
-                </div>
-              </div>
-              <canvas id="chart-techStock" width="220" height="40" class="w-full mb-2"></canvas>
-              <div class="text-xs text-slate-500 mb-2">Held: <span id="held-techStock" class="text-slate-300 font-mono">0 shares</span> · Value: <span id="value-techStock" class="text-slate-300 font-mono">$0</span></div>
-              <div class="flex gap-2">
-                <input type="number" id="buy-techStock" placeholder="Shares to buy" min="1" class="flex-1 w-0" />
-                <button onclick="buyStock('techStock')" class="btn-success text-white text-xs px-3 py-1.5 rounded-lg cursor-pointer font-semibold">BUY</button>
-                <button onclick="sellStock('techStock')" class="btn-danger text-white text-xs px-3 py-1.5 rounded-lg cursor-pointer font-semibold">SELL</button>
-              </div>
-            </div>
-            
-            <!-- Dividend Stock -->
-            <div class="glass-card p-3" id="card-divStock">
-              <div class="flex justify-between items-start mb-1">
-                <div>
-                  <div class="font-semibold text-sm text-white">Dividend Stock</div>
-                  <div class="text-xs text-slate-500">Stable · 4% + 1% div/qtr</div>
-                </div>
-                <div class="text-right">
-                  <div id="price-divStock" class="font-mono font-bold neon-green text-sm">$75.00</div>
-                  <div id="change-divStock" class="text-xs font-mono">+0.00%</div>
-                </div>
-              </div>
-              <canvas id="chart-divStock" width="220" height="40" class="w-full mb-2"></canvas>
-              <div class="text-xs text-slate-500 mb-2">Held: <span id="held-divStock" class="text-slate-300 font-mono">0 shares</span> · Value: <span id="value-divStock" class="text-slate-300 font-mono">$0</span></div>
-              <div class="flex gap-2">
-                <input type="number" id="buy-divStock" placeholder="Shares to buy" min="1" class="flex-1 w-0" />
-                <button onclick="buyStock('divStock')" class="btn-success text-white text-xs px-3 py-1.5 rounded-lg cursor-pointer font-semibold">BUY</button>
-                <button onclick="sellStock('divStock')" class="btn-danger text-white text-xs px-3 py-1.5 rounded-lg cursor-pointer font-semibold">SELL</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Crypto -->
-        <div>
-          <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">₿ Crypto Assets</h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <!-- Bitcoin -->
-            <div class="glass-card p-3" id="card-bitcoin">
-              <div class="flex justify-between items-start mb-1">
-                <div>
-                  <div class="font-semibold text-sm text-white">BitCoin <span class="text-yellow-400">₿</span></div>
-                  <div class="text-xs text-slate-500">Extreme Volatility · Sentiment-driven</div>
-                </div>
-                <div class="text-right">
-                  <div id="price-bitcoin" class="font-mono font-bold neon-yellow text-sm">$30,000</div>
-                  <div id="change-bitcoin" class="text-xs font-mono">+0.00%</div>
-                </div>
-              </div>
-              <canvas id="chart-bitcoin" width="320" height="40" class="w-full mb-2"></canvas>
-              <div class="text-xs text-slate-500 mb-2">Held: <span id="held-bitcoin" class="text-slate-300 font-mono">0 BTC</span> · Value: <span id="value-bitcoin" class="text-slate-300 font-mono">$0</span></div>
-              <div class="flex gap-2">
-                <input type="number" id="buy-bitcoin" placeholder="BTC amount (decimals ok)" min="0.001" step="0.001" class="flex-1 w-0" />
-                <button onclick="buyStock('bitcoin')" class="btn-success text-white text-xs px-3 py-1.5 rounded-lg cursor-pointer font-semibold">BUY</button>
-                <button onclick="sellStock('bitcoin')" class="btn-danger text-white text-xs px-3 py-1.5 rounded-lg cursor-pointer font-semibold">SELL</button>
-              </div>
-            </div>
-            <!-- HYSA Info -->
-            <div class="glass-card p-3 flex flex-col justify-between">
-              <div>
-                <div class="font-semibold text-sm text-white mb-1">🏦 High-Yield Savings</div>
-                <div class="text-xs text-slate-500 mb-3">4% APY, compounded monthly on your cash balance. Automatic — no action needed.</div>
-                <div class="space-y-2">
-                  <div class="flex justify-between text-sm"><span class="text-slate-400">Current Cash</span><span id="hysaCash" class="font-mono neon-green">$10,000</span></div>
-                  <div class="flex justify-between text-sm"><span class="text-slate-400">Monthly Interest</span><span id="hysaMonthlyInt" class="font-mono neon-blue">$33.33</span></div>
-                  <div class="flex justify-between text-sm"><span class="text-slate-400">Annual Rate</span><span class="font-mono text-slate-300">4.00%</span></div>
-                  <div class="flex justify-between text-sm"><span class="text-slate-400">Total Earned</span><span id="hysaTotalEarned" class="font-mono neon-blue">$0</span></div>
-                </div>
-              </div>
-              <div class="mt-3 p-2 rounded bg-blue-900/20 border border-blue-800/30 text-xs text-blue-300">
-                💡 Interest is auto-applied each turn to your cash balance.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- TAB 2: REAL ESTATE & BANK -->
-      <div id="content-realestate" class="tab-content p-4">
-        
-        <!-- Properties Owned -->
-        <div id="propertiesOwned" class="mb-5 hidden">
-          <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">🏘️ Your Properties</h4>
-          <div id="propertiesList" class="space-y-3"></div>
-        </div>
-        
-        <!-- Buy Properties -->
-        <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">🏗️ Property Market</h4>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <!-- Residential -->
-          <div class="glass-card p-4">
-            <div class="flex justify-between items-start mb-2">
-              <div>
-                <div class="font-bold text-white">Residential Property</div>
-                <div class="text-xs text-slate-500">Single family home</div>
-              </div>
-              <div id="resPrice" class="font-mono font-bold neon-blue text-sm">$200,000</div>
-            </div>
-            <div class="space-y-1.5 text-sm mb-4">
-              <div class="flex justify-between"><span class="text-slate-400">Down Payment (20%)</span><span class="font-mono text-white" id="resDownPayment">$40,000</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Mortgage Amount</span><span class="font-mono text-red-400" id="resMortgage">$160,000</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Rental Income</span><span class="font-mono neon-green">$1,200/mo</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Maintenance/Taxes</span><span class="font-mono neon-red">-$400/mo</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Net Rental Profit</span><span class="font-mono neon-green">+$800/mo</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Min. Credit Score</span><span class="font-mono neon-yellow">650</span></div>
-            </div>
-            <button onclick="buyProperty('residential')" class="btn-primary w-full text-white font-semibold py-2 rounded-lg cursor-pointer text-sm">Purchase Residential Property</button>
-          </div>
-          
-          <!-- Commercial -->
-          <div class="glass-card p-4">
-            <div class="flex justify-between items-start mb-2">
-              <div>
-                <div class="font-bold text-white">Commercial Property</div>
-                <div class="text-xs text-slate-500">Office / Retail unit</div>
-              </div>
-              <div id="comPrice" class="font-mono font-bold neon-purple text-sm">$500,000</div>
-            </div>
-            <div class="space-y-1.5 text-sm mb-4">
-              <div class="flex justify-between"><span class="text-slate-400">Down Payment (25%)</span><span class="font-mono text-white" id="comDownPayment">$125,000</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Mortgage Amount</span><span class="font-mono text-red-400" id="comMortgage">$375,000</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Rental Income</span><span class="font-mono neon-green">$3,500/mo</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Maintenance/Taxes</span><span class="font-mono neon-red">-$1,000/mo</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Net Rental Profit</span><span class="font-mono neon-green">+$2,500/mo</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Min. Credit Score</span><span class="font-mono neon-yellow">720</span></div>
-            </div>
-            <button onclick="buyProperty('commercial')" class="btn-primary w-full text-white font-semibold py-2 rounded-lg cursor-pointer text-sm">Purchase Commercial Property</button>
-          </div>
-        </div>
-        
-        <!-- Student Loan -->
-        <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">🎓 Debt Management</h4>
-        <div class="glass-card p-4">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <div class="font-bold text-white mb-1">Student Loan</div>
-              <div class="text-xs text-slate-500">6% annual interest rate</div>
-            </div>
-            <div class="text-right">
-              <div id="loanBalance" class="font-mono font-bold neon-red text-lg">$30,000</div>
-              <div class="text-xs text-slate-500">remaining</div>
-            </div>
-          </div>
-          <div class="space-y-2 text-sm mb-4">
-            <div class="flex justify-between"><span class="text-slate-400">Monthly Minimum</span><span class="font-mono text-red-400">$300</span></div>
-            <div class="flex justify-between"><span class="text-slate-400">Monthly Interest</span><span id="loanMonthlyInt" class="font-mono text-red-400">$150.00</span></div>
-            <div class="flex justify-between"><span class="text-slate-400">Months to Payoff (min)</span><span id="loanPayoffMonths" class="font-mono text-slate-300">~200 months</span></div>
-            <div class="progress-bar mt-2">
-              <div id="loanProgress" class="progress-fill" style="width:0%;background:#f87171"></div>
-            </div>
-            <div class="text-xs text-slate-500 text-right">Paid: <span id="loanPaidPct">0%</span></div>
-          </div>
-          <div class="flex gap-3">
-            <input type="number" id="extraLoanPayment" placeholder="Extra payment amount" min="0" class="flex-1" />
-            <button onclick="makeExtraLoanPayment()" class="btn-warn text-white font-semibold px-4 py-2 rounded-lg cursor-pointer text-sm">Pay Extra</button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- TAB 3: CAREER & INSURANCE -->
-      <div id="content-career" class="tab-content p-4">
-        
-        <!-- Career -->
-        <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">💼 Career Progression</h4>
-        <div class="glass-card p-4 mb-4">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <div id="currentJobTitle" class="font-bold text-white text-lg">Junior Analyst</div>
-              <div class="text-xs text-slate-500">Current Position</div>
-            </div>
-            <div class="text-right">
-              <div id="currentSalary" class="font-mono font-bold neon-green text-lg">$3,500/mo</div>
-              <div class="text-xs text-slate-500">Monthly Salary</div>
-            </div>
-          </div>
-          <div id="careerProgress" class="space-y-3"></div>
-        </div>
-        
-        <!-- Insurance -->
-        <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">🛡️ Insurance</h4>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Health Insurance -->
-          <div class="glass-card p-4">
-            <div class="flex justify-between items-start mb-2">
-              <div>
-                <div class="font-bold text-white">Health Insurance</div>
-                <div class="text-xs text-slate-500">Protects against medical emergencies</div>
-              </div>
-              <div id="healthInsIcon" class="text-2xl">🚑</div>
-            </div>
-            <div class="space-y-1.5 text-sm mb-4">
-              <div class="flex justify-between"><span class="text-slate-400">Monthly Premium</span><span class="font-mono text-white">$150/mo</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Medical Emergency Cost</span><span class="font-mono neon-green">$500 (vs $5,000)</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Status</span><span id="healthInsStatusCard" class="font-semibold text-red-400">✗ Not Covered</span></div>
-            </div>
-            <button onclick="toggleInsurance('health')" id="healthInsBtn" class="btn-primary w-full text-white font-semibold py-2 rounded-lg cursor-pointer text-sm">Buy Health Insurance ($150/mo)</button>
-          </div>
-          
-          <!-- Property Insurance -->
-          <div class="glass-card p-4">
-            <div class="flex justify-between items-start mb-2">
-              <div>
-                <div class="font-bold text-white">Property Insurance</div>
-                <div class="text-xs text-slate-500">Covers property damage events</div>
-              </div>
-              <div class="text-2xl">🏠</div>
-            </div>
-            <div class="space-y-1.5 text-sm mb-4">
-              <div class="flex justify-between"><span class="text-slate-400">Monthly Premium</span><span class="font-mono text-white">$200/mo</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Covers</span><span class="font-mono neon-green text-xs">Damage events (-50%)</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Status</span><span id="propInsStatusCard" class="font-semibold text-red-400">✗ Not Covered</span></div>
-            </div>
-            <button onclick="toggleInsurance('property')" id="propInsBtn" class="btn-primary w-full text-white font-semibold py-2 rounded-lg cursor-pointer text-sm">Buy Property Insurance ($200/mo)</button>
-          </div>
-        </div>
-        
-        <!-- Side Hustles -->
-        <div class="mt-4">
-          <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">⚡ Side Hustles</h4>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div class="glass-card p-3">
-              <div class="font-semibold text-sm text-white mb-1">Freelancing</div>
-              <div class="text-xs text-slate-500 mb-2">+$500/mo but costs 10 hours/week</div>
-              <div class="flex justify-between text-sm mb-3"><span class="text-slate-400">Status</span><span id="freelanceStatus" class="text-red-400 font-semibold text-xs">Inactive</span></div>
-              <button onclick="toggleSideHustle('freelance')" id="freelanceBtn" class="btn-primary w-full text-white text-xs py-1.5 rounded-lg cursor-pointer font-semibold">Start Freelancing</button>
-            </div>
-            <div class="glass-card p-3">
-              <div class="font-semibold text-sm text-white mb-1">Content Creation</div>
-              <div class="text-xs text-slate-500 mb-2">+$200/mo growing, passive after 6 months</div>
-              <div class="flex justify-between text-sm mb-3"><span class="text-slate-400">Status</span><span id="contentStatus" class="text-red-400 font-semibold text-xs">Inactive</span></div>
-              <button onclick="toggleSideHustle('content')" id="contentBtn" class="btn-primary w-full text-white text-xs py-1.5 rounded-lg cursor-pointer font-semibold">Start Content Creation</button>
-            </div>
-            <div class="glass-card p-3">
-              <div class="font-semibold text-sm text-white mb-1">Online Business</div>
-              <div class="text-xs text-slate-500 mb-2">Costs $2,000 to start. +$800/mo potential</div>
-              <div class="flex justify-between text-sm mb-3"><span class="text-slate-400">Status</span><span id="bizStatus" class="text-red-400 font-semibold text-xs">Inactive</span></div>
-              <button onclick="toggleSideHustle('business')" id="bizBtn" class="btn-primary w-full text-white text-xs py-1.5 rounded-lg cursor-pointer font-semibold">Start Business ($2,000)</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- EVENT LOG -->
-    <div class="glass-card p-4">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Financial Ledger</h3>
-        <button onclick="clearLog()" class="text-xs text-slate-600 hover:text-slate-400 cursor-pointer">Clear</button>
-      </div>
-      <div id="eventLog" class="space-y-1 max-h-44 overflow-y-auto pr-1">
-        <div class="log-entry log-info text-slate-400">Welcome to Finance & Investment! You are 18 years old with $10,000 cash and $30,000 in student debt. Build your fortune before age 65!</div>
-      </div>
-    </div>
-  </main>
 </div>
 
 <script>
+'use strict';
 // ============================================================
-// GAME STATE
+// STATE MANAGEMENT — Single source of truth
 // ============================================================
-let gameState = {};
-let pendingEvent = null;
-let isProcessingTurn = false;
+let G = {}; // Global game state
+let dialogQueue = []; // Queue of pending dialogs
+let dialogActive = false;
 
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const CAREER_LEVELS = [
-  { title: 'Junior Analyst', salary: 3500, netWorthReq: 0, creditReq: 0 },
-  { title: 'Senior Analyst', salary: 5500, netWorthReq: 10000, creditReq: 680 },
-  { title: 'Associate Manager', salary: 8500, netWorthReq: 50000, creditReq: 700 },
-  { title: 'Manager', salary: 13000, netWorthReq: 150000, creditReq: 720 },
-  { title: 'Director', salary: 20000, netWorthReq: 400000, creditReq: 740 },
-  { title: 'VP of Finance', salary: 35000, netWorthReq: 800000, creditReq: 750 },
-  { title: 'Chief Financial Officer', salary: 60000, netWorthReq: 1500000, creditReq: 760 },
+// ============================================================
+// CONSTANTS
+// ============================================================
+const TRAITS = [
+  { id:'genius', name:'🧠 Genius', desc:'Learning costs 50% less AP', type:'pos' },
+  { id:'addictive', name:'🎲 Addictive Personality', desc:'Harmful habits hard to resist; stress relief addictions', type:'neg' },
+  { id:'anxious', name:'😰 Anxious', desc:'Stress rises 20% faster from all sources', type:'neg' },
+  { id:'charismatic', name:'✨ Born Charismatic', desc:'+15 base Charisma; socializing costs less AP', type:'pos' },
+  { id:'iron_gut', name:'💪 Iron Constitution', desc:'Immune System degrades 50% slower', type:'pos' },
+  { id:'glutton', name:'🍔 Glutton', desc:'Appearance degrades without gym; health risks', type:'neg' },
+  { id:'hustler', name:'🏃 Hustler', desc:'+10% salary; faster career growth', type:'pos' },
+  { id:'unlucky', name:'🙁 Unlucky', desc:'Negative events 25% more likely', type:'neg' },
+  { id:'lucky', name:'🍀 Lucky', desc:'Positive events 25% more likely', type:'pos' },
+  { id:'empath', name:'💞 Empath', desc:'NPC relations build faster; +mental load', type:'pos' },
+  { id:'paranoid', name:'😵 Paranoid', desc:'Sanity drain +10/qtr; trust NPC slowly', type:'neg' },
+  { id:'photogenic', name:'📸 Photogenic', desc:'+20 base Appearance; ages slower', type:'pos' },
 ];
 
-const ECONOMY_STATES = ['GROWTH', 'BOOM', 'RECESSION', 'DEPRESSION'];
-
-const LIFE_EVENTS = [
-  {
-    id: 'marketCrash',
-    title: '📉 Market Crash!',
-    icon: '📉',
-    desc: 'A major market correction has hit. All stocks drop 30% instantly. Crypto plummets 50%. Panic selling ensues across Wall Street.',
-    choices: null,
-    effect: (gs) => {
-      ['indexFund','techStock','divStock'].forEach(k => {
-        gs.stocks[k].price = Math.max(1, gs.stocks[k].price * 0.70);
-        gs.stocks[k].history.push(gs.stocks[k].price);
-        if(gs.stocks[k].history.length > 10) gs.stocks[k].history.shift();
-      });
-      gs.crypto.bitcoin.price = Math.max(100, gs.crypto.bitcoin.price * 0.50);
-      gs.crypto.bitcoin.history.push(gs.crypto.bitcoin.price);
-      if(gs.crypto.bitcoin.history.length > 10) gs.crypto.bitcoin.history.shift();
-      addLog('📉 MARKET CRASH: All stocks -30%, Bitcoin -50%!', 'loss');
-      return 'Market Crash: Stocks -30%, Bitcoin -50%';
-    }
-  },
-  {
-    id: 'promotion',
-    title: '🎉 Promotion!',
-    icon: '🎉',
-    desc: 'Your hard work paid off! You\'ve been promoted and received a 15% salary increase. However, lifestyle inflation has crept in — your monthly expenses increase by 5%.',
-    choices: null,
-    effect: (gs) => {
-      const raise = gs.salary * 0.15;
-      gs.salary += raise;
-      gs.livingExpenses = Math.round(gs.livingExpenses * 1.05);
-      addLog(`🎉 PROMOTION! Salary +$${fmt(raise)}/mo. Living expenses increased.`, 'gain');
-      return `Promotion: +$${fmt(raise)}/mo salary, expenses +5%`;
-    }
-  },
-  {
-    id: 'medicalEmergency',
-    title: '🏥 Medical Emergency!',
-    icon: '🏥',
-    desc: 'You\'ve been rushed to the hospital with a serious health issue. This is going to cost you — whether you have insurance or not.',
-    choices: null,
-    effect: (gs) => {
-      const cost = gs.hasHealthInsurance ? 500 : 5000;
-      gs.cash -= cost;
-      const msg = gs.hasHealthInsurance ? 
-        `🏥 Medical Emergency: Insurance covered most of it. Cost: $${fmt(cost)}` :
-        `🏥 Medical Emergency: No insurance! Emergency bill: $${fmt(cost)}. Get health insurance!`;
-      addLog(msg, 'loss');
-      return msg;
-    }
-  },
-  {
-    id: 'cryptoHype',
-    title: '🚀 Crypto Hype Wave!',
-    icon: '🚀',
-    desc: 'Social media influencers and viral posts are driving massive interest in crypto. Bitcoin is expected to surge significantly next turn!',
-    choices: null,
-    effect: (gs) => {
-      gs.cryptoHypeActive = true;
-      addLog('🚀 CRYPTO HYPE: Bitcoin will surge next turn!', 'event');
-      return 'Crypto Hype: Bitcoin surge incoming next turn';
-    }
-  },
-  {
-    id: 'rentIncrease',
-    title: '🏠 Rent Increase Notice!',
-    icon: '🏠',
-    desc: 'Your landlord has sent a notice: monthly rent is increasing by $200 due to rising property values in the area. Your living expenses go up.',
-    choices: null,
-    effect: (gs) => {
-      gs.livingExpenses += 200;
-      addLog('🏠 Rent increased! Living expenses +$200/mo', 'loss');
-      return 'Rent Increase: Living expenses +$200/mo';
-    }
-  },
-  {
-    id: 'sideHustleBoom',
-    title: '💰 Side Hustle Windfall!',
-    icon: '💰',
-    desc: 'One of your passive income streams hit a viral moment! You receive a one-time bonus of $2,500 to $7,500.',
-    choices: null,
-    effect: (gs) => {
-      const bonus = Math.floor(Math.random() * 5000) + 2500;
-      gs.cash += bonus;
-      addLog(`💰 SIDE HUSTLE BOOM! Windfall of $${fmt(bonus)}!`, 'gain');
-      return `Side Hustle Boom: +$${fmt(bonus)} windfall`;
-    }
-  },
-  {
-    id: 'taxSeason',
-    title: '📋 Tax Season!',
-    icon: '📋',
-    desc: 'It\'s tax time. Based on your income bracket, you owe taxes this year. High earners pay more.',
-    choices: null,
-    effect: (gs) => {
-      const taxRate = gs.salary >= 10000 ? 0.28 : gs.salary >= 6000 ? 0.22 : 0.12;
-      const annualIncome = gs.salary * 12;
-      const taxBill = Math.floor(annualIncome * taxRate * 0.08);
-      gs.cash -= Math.max(500, taxBill);
-      addLog(`📋 TAX SEASON: Paid $${fmt(Math.max(500, taxBill))} in taxes (${Math.round(taxRate*100)}% bracket)`, 'loss');
-      return `Tax Season: -$${fmt(Math.max(500,taxBill))}`;
-    }
-  },
-  {
-    id: 'carBreakdown',
-    title: '🚗 Car Breakdown!',
-    icon: '🚗',
-    desc: 'Your car broke down and needs immediate repairs. The mechanic quotes you $1,200 for parts and labor. Without a car, you can\'t work efficiently.',
-    choices: null,
-    effect: (gs) => {
-      gs.cash -= 1200;
-      addLog('🚗 CAR BREAKDOWN: Repair cost $1,200', 'loss');
-      return 'Car Breakdown: -$1,200';
-    }
-  },
-  {
-    id: 'stockTip',
-    title: '📰 Hot Stock Tip!',
-    icon: '📰',
-    desc: 'An analyst on TV is hyping up Tech Stock as "the next big thing." Tech Stock surges 25% today due to market enthusiasm.',
-    choices: null,
-    effect: (gs) => {
-      gs.stocks.techStock.price *= 1.25;
-      gs.stocks.techStock.history.push(gs.stocks.techStock.price);
-      if(gs.stocks.techStock.history.length > 10) gs.stocks.techStock.history.shift();
-      addLog('📰 HOT TIP: Tech Stock surged 25%!', 'gain');
-      return 'Stock tip: Tech Stock +25%';
-    }
-  },
-  {
-    id: 'bonusCheck',
-    title: '🎁 Annual Bonus!',
-    icon: '🎁',
-    desc: 'Great performance this year! Your company awards you an annual bonus equal to one month\'s salary.',
-    choices: null,
-    effect: (gs) => {
-      gs.cash += gs.salary;
-      addLog(`🎁 ANNUAL BONUS: +$${fmt(gs.salary)}!`, 'gain');
-      return `Annual Bonus: +$${fmt(gs.salary)}`;
-    }
-  },
-  {
-    id: 'propertyDamage',
-    title: '🌊 Property Damage!',
-    icon: '🌊',
-    desc: 'A natural disaster has damaged one of your properties. Significant repair costs incoming.',
-    choices: null,
-    effect: (gs) => {
-      if(gs.properties.length === 0) {
-        gs.cash -= 500;
-        addLog('🌊 PROPERTY DAMAGE: No properties affected, minor flooding damage -$500', 'loss');
-        return 'Minor Flooding: -$500';
-      }
-      const propIdx = Math.floor(Math.random() * gs.properties.length);
-      const prop = gs.properties[propIdx];
-      const damageCost = prop.type === 'commercial' ? 15000 : 6000;
-      const actualCost = gs.hasPropertyInsurance ? Math.floor(damageCost * 0.5) : damageCost;
-      gs.cash -= actualCost;
-      prop.value -= damageCost * 0.05;
-      const insMsg = gs.hasPropertyInsurance ? ' (insurance covered 50%)' : ' (no insurance!)';
-      addLog(`🌊 PROPERTY DAMAGE: ${prop.name} damaged! Repair: -$${fmt(actualCost)}${insMsg}`, 'loss');
-      return `Property Damage: -$${fmt(actualCost)}${insMsg}`;
-    }
-  },
+// Market assets (5 stocks + 2 crypto)
+const ASSETS = [
+  { id:'tech', name:'TechNova (TNVA)', type:'stock', basePrice:120, volatility:0.15, trend:0 },
+  { id:'bank', name:'GlobalBank (GBK)', type:'stock', basePrice:85, volatility:0.08, trend:0 },
+  { id:'energy', name:'OilPeak (OPEK)', type:'stock', basePrice:60, volatility:0.12, trend:0 },
+  { id:'pharma', name:'PharmaX (PHRX)', type:'stock', basePrice:200, volatility:0.10, trend:0 },
+  { id:'realty', name:'PropCo (PRCO)', type:'stock', basePrice:45, volatility:0.07, trend:0 },
+  { id:'btc', name:'BitCoin (BTC)', type:'crypto', basePrice:35000, volatility:0.35, trend:0 },
+  { id:'eth', name:'EtherBase (ETH)', type:'crypto', basePrice:2200, volatility:0.30, trend:0 },
 ];
 
+const JOBS = [
+  { id:'none', title:'Unemployed', minAge:0, minSmarts:0, minEdu:0, baseSalary:0, stress:0 },
+  { id:'retail', title:'Retail Worker', minAge:16, minSmarts:0, minEdu:0, baseSalary:5000, stress:15 },
+  { id:'gig', title:'Gig Worker / Freelancer', minAge:18, minSmarts:20, minEdu:0, baseSalary:8000, stress:25 },
+  { id:'office', title:'Office Clerk', minAge:18, minSmarts:40, minEdu:1, baseSalary:14000, stress:20 },
+  { id:'teacher', title:'Teacher', minAge:22, minSmarts:55, minEdu:2, baseSalary:22000, stress:30 },
+  { id:'engineer', title:'Software Engineer', minAge:22, minSmarts:70, minEdu:2, baseSalary:55000, stress:25 },
+  { id:'doctor', title:'Doctor', minAge:26, minSmarts:80, minEdu:3, baseSalary:95000, stress:40 },
+  { id:'lawyer', title:'Lawyer', minAge:24, minSmarts:75, minEdu:3, baseSalary:85000, stress:35 },
+  { id:'executive', title:'Corporate Executive', minAge:30, minSmarts:70, minEdu:2, baseSalary:150000, stress:45 },
+  { id:'politician', title:'Politician', minAge:35, minSmarts:60, minEdu:2, baseSalary:80000, stress:50 },
+];
+
+const DISEASES = [
+  { id:'flu', name:'Influenza', cost:500, duration:1, hpDmg:10, effect:'Minor health drain' },
+  { id:'diabetes', name:'Type 2 Diabetes', cost:3000, duration:20, hpDmg:3, effect:'-5 Stamina per quarter' },
+  { id:'depression', name:'Clinical Depression', cost:2000, duration:8, hpDmg:2, effect:'-10 Sanity/qtr, -20 Focus' },
+  { id:'heart', name:'Cardiac Event', cost:25000, duration:2, hpDmg:30, effect:'Immediate -30 HP' },
+  { id:'cancer', name:'Stage II Cancer', cost:80000, duration:12, hpDmg:5, effect:'-5 HP/qtr; high treatment cost' },
+  { id:'anxiety_d', name:'Anxiety Disorder', cost:1500, duration:10, hpDmg:1, effect:'+15 Stress/qtr' },
+];
+
+// ============================================================
+// INITIALIZATION
+// ============================================================
 function initGame() {
-  gameState = {
-    // Player Info
-    age: 18,
-    turn: 1,
-    year: 1990,
-    month: 0, // January
-    
-    // Financials
-    cash: 10000,
-    salary: 3500,
-    livingExpenses: 2000,
-    studentLoanBalance: 30000,
-    studentLoanOriginal: 30000,
-    studentLoanRate: 0.06,
-    minLoanPayment: 300,
-    
-    // Credit & inflation
-    creditScore: 680,
-    inflationRate: 0.02,
-    
-    // Career
-    careerIndex: 0,
-    
-    // Insurance
-    hasHealthInsurance: false,
-    hasPropertyInsurance: false,
-    
-    // Side Hustles
-    sideHustles: {
-      freelance: false,
-      content: false,
-      contentMonths: 0,
-      business: false,
-    },
-    
-    // Stocks
-    stocks: {
-      indexFund: { price: 100, shares: 0, history: [100], baseReturn: 0.085 },
-      techStock: { price: 50, shares: 0, history: [50], baseReturn: 0.15 },
-      divStock: { price: 75, shares: 0, history: [75], baseReturn: 0.04 },
-    },
-    
-    // Crypto
-    crypto: {
-      bitcoin: { price: 30000, amount: 0, history: [30000], baseReturn: 0.15 },
-    },
-    cryptoHypeActive: false,
-    
-    // Market
-    marketSentiment: 0, // -1 to 1
-    economyState: 'GROWTH',
-    economyCycleTurnsLeft: Math.floor(Math.random() * 25) + 24,
-    
-    // Real Estate
+  const names = ['Alex','Jordan','Taylor','Morgan','Riley','Casey','Jamie','Drew'];
+  const name = names[rng(names.length)];
+  const gender = Math.random() > 0.5 ? 'Male' : 'Female';
+
+  // Pick 2-3 random traits at birth
+  const shuffled = [...TRAITS].sort(()=>Math.random()-0.5);
+  const birthTraits = shuffled.slice(0, 2 + (Math.random()<0.3?1:0));
+
+  // Init assets with current prices
+  const portfolio = {};
+  const prices = {};
+  ASSETS.forEach(a => { prices[a.id] = a.basePrice; portfolio[a.id] = 0; });
+
+  G = {
+    // Time
+    age: 0, quarter: 1, totalQuarters: 0,
+    // AP
+    ap: 100, maxAP: 100, burnoutStacks: 0,
+    // Character
+    name, gender,
+    traits: birthTraits.map(t=>t.id),
+    // Physical stats 0-100
+    health: 80 + rng(20),
+    appearance: 50 + rng(50),
+    stamina: 60 + rng(40),
+    immune: 70 + rng(30),
+    // Mental stats
+    smarts: 30 + rng(40),
+    sanity: 80 + rng(20),
+    stress: 10 + rng(20),
+    focus: 60 + rng(40),
+    // Social
+    reputation: 30 + rng(20),
+    charisma: 30 + rng(40),
+    karma: 50,
+    // Finance
+    cash: 0, netWorth: 0, creditScore: 650,
+    income: 0, expenses: 0, // quarterly
+    salary: 0,
+    job: 'none', jobLevel: 0, jobPerformance: 50,
+    jobQuartersHeld: 0,
+    education: 0, // 0=none,1=HS,2=bachelor,3=master
+    gpa: 0, inSchool: false, schoolType: null, schoolDebt: 0,
+    // Debts array: {id, name, amount, rate, minPayment}
+    debts: [],
+    // Properties array: {id, name, value, rent, mortgage}
     properties: [],
-    mortgages: [],
-    
-    // Economy cycle index
-    economyStateIndex: 0,
-    
-    // Stats
-    hysaTotalEarned: 0,
-    dividendsReceived: 0,
-    
-    // Tracking initial price
-    initialResPrice: 200000,
-    initialComPrice: 500000,
-    currentResPrice: 200000,
-    currentComPrice: 500000,
+    // Company: null or { name, capital, employees, salary, marketing, price, revenue, cashflowNeg }
+    company: null,
+    // Investments
+    portfolio,
+    assetPrices: prices,
+    assetHistory: ASSETS.reduce((o,a)=>({...o,[a.id]:[a.basePrice]}),{}),
+    // NPCs
+    npcs: [],
+    // Active conditions
+    diseases: [],
+    inPrison: false, prisonQuarters: 0,
+    // World state
+    economy: 'normal', // normal/recession/boom
+    inflation: 1.0, // cumulative multiplier
+    inflationRate: 0.02 + Math.random()*0.02, // 2-4% annual
+    pandemicActive: false, pandemicQuarters: 0,
+    warActive: false,
+    // Events
+    activeEvents: [],
+    // History for game-over
+    history: { quartersLived: 0, peakNetWorth: 0, causeDeath: '', achievements: [] },
+    // Criminal record
+    criminalRecord: 0,
+    arrested: false,
+    // Misc flags
+    hasPrenup: false,
+    bankruptcyCount: 0,
+    consecutiveBurnoutQtrs: 0,
+    lastAPused: 0,
   };
-  
+
+  // Apply trait effects at birth
+  if(hasTrait('charismatic')) G.charisma = Math.min(100, G.charisma+15);
+  if(hasTrait('photogenic')) G.appearance = Math.min(100, G.appearance+20);
+
+  // Generate starting family NPCs
+  G.npcs.push(createNPC('Mom', 'Parent', '👩', 45));
+  G.npcs.push(createNPC('Dad', 'Parent', '👨', 47));
+
+  // Reset UI
+  document.getElementById('gameover').classList.remove('active');
+  clearLog();
   renderAll();
-  addLog('🎮 Game started! Year 1990, Age 22. Good luck building your fortune!', 'info');
+  addLog(`A new life begins. Meet <b>${name}</b>, born ${gender === 'Male' ? 'as a boy' : 'as a girl'} into the world.`, 'info');
+  addLog(`Personality traits detected: <b>${birthTraits.map(t=>t.name).join(', ')}</b>`, 'event');
+  addLog(`Welcome to LifeForge — a ruthlessly realistic life simulator. Every choice costs Action Points. Choose wisely.`, 'info');
 }
 
 // ============================================================
-// ECONOMIC ENGINE
+// HELPER FUNCTIONS
 // ============================================================
+function rng(n) { return Math.floor(Math.random() * n); }
+function rngFloat(min,max) { return min + Math.random()*(max-min); }
+function clamp(v,mn,mx) { return Math.max(mn, Math.min(mx, v)); }
+function hasTrait(id) { return G.traits.includes(id); }
+function fmtMoney(n) {
+  if(Math.abs(n)>=1e6) return `$${(n/1e6).toFixed(2)}M`;
+  if(Math.abs(n)>=1e3) return `$${(n/1e3).toFixed(1)}K`;
+  return `$${n.toFixed(0)}`;
+}
+function fmtAge() { return `${G.age}y Q${G.quarter}`; }
+function stressMultiplier() { return hasTrait('anxious') ? 1.2 : 1.0; }
 
-function getEconomyMultiplier() {
-  const m = { GROWTH: 1.0, BOOM: 1.4, RECESSION: 0.5, DEPRESSION: 0.1 };
-  return m[gameState.economyState];
+function addLog(msg, type='info') {
+  const feed = document.getElementById('log-feed');
+  const el = document.createElement('div');
+  el.className = `log-entry log-${type}`;
+  el.innerHTML = `<div class="log-time">${fmtAge()}</div><div class="log-text">${msg}</div>`;
+  feed.appendChild(el);
+  feed.scrollTop = feed.scrollHeight;
+}
+function clearLog() {
+  document.getElementById('log-feed').innerHTML = '';
 }
 
-function getCryptoMultiplier() {
-  const m = { GROWTH: 1.0, BOOM: 1.8, RECESSION: 0.5, DEPRESSION: 0.2 };
-  return m[gameState.economyState];
+function createNPC(name, relation, emoji, age) {
+  return {
+    id: Math.random().toString(36).slice(2),
+    name, relation, emoji, age,
+    relationship: 60 + rng(30),
+    trust: 50 + rng(30),
+    dependency: 0, // financial dependency
+    alive: true,
+    jealousy: 0,
+  };
 }
 
-function getREAppreciation() {
-  const m = { GROWTH: 0.003, BOOM: 0.007, RECESSION: -0.004, DEPRESSION: -0.012 };
-  return m[gameState.economyState];
+function getLifeStage() {
+  if(G.age < 5) return 'Infant';
+  if(G.age < 13) return 'Child';
+  if(G.age < 18) return 'Teenager';
+  if(G.age < 25) return 'Young Adult';
+  if(G.age < 40) return 'Adult';
+  if(G.age < 60) return 'Middle-Aged';
+  if(G.age < 80) return 'Senior';
+  return 'Elder';
 }
 
-function updateMarketSentiment() {
-  const drift = (Math.random() - 0.5) * 0.3;
-  gameState.marketSentiment = Math.max(-1, Math.min(1, gameState.marketSentiment + drift));
+// Progressive income tax calculation
+// Based on tiered US-inspired tax brackets
+function calcTax(income) {
+  if(income <= 10000) return income * 0.10;
+  if(income <= 40000) return 1000 + (income-10000)*0.12;
+  if(income <= 85000) return 4600 + (income-40000)*0.22;
+  if(income <= 163000) return 14500 + (income-85000)*0.24;
+  if(income <= 215000) return 33220 + (income-163000)*0.32;
+  return 49900 + (income-215000)*0.37;
 }
 
-function updateEconomyCycle() {
-  gameState.economyCycleTurnsLeft--;
-  if(gameState.economyCycleTurnsLeft <= 0) {
-    const prev = gameState.economyStateIndex;
-    gameState.economyStateIndex = (gameState.economyStateIndex + 1) % 4;
-    // Occasionally skip or jump
-    if(Math.random() < 0.3) {
-      gameState.economyStateIndex = Math.floor(Math.random() * 4);
+// Credit score: 300-850. Affected by: payment history, debt levels, income
+function updateCreditScore(delta) {
+  G.creditScore = clamp(G.creditScore + delta, 300, 850);
+}
+
+// Stat with trait and clamping
+function modStat(key, delta) {
+  G[key] = clamp(G[key] + delta, 0, 100);
+}
+function modStress(delta) {
+  const effective = delta * stressMultiplier();
+  G.stress = clamp(G.stress + effective, 0, 100);
+}
+
+// ============================================================
+// QUARTER ADVANCE — The core game loop
+// ============================================================
+function advanceQuarter() {
+  if(dialogActive) return;
+  document.getElementById('btn-age').disabled = true;
+
+  G.totalQuarters++;
+  G.history.quartersLived = G.totalQuarters;
+
+  // Track AP usage
+  G.lastAPused = G.maxAP - G.ap;
+
+  // ---- Age progression ----
+  G.quarter++;
+  if(G.quarter > 4) { G.quarter = 1; G.age++; }
+
+  addLog(`━━━ <b>Age ${G.age}, Quarter ${G.quarter}</b> begins ━━━`, 'info');
+
+  // ---- Refresh AP ----
+  // Burnout check: if used 90%+ AP last quarter
+  if(G.lastAPused >= 90 || G.stress > 80) {
+    G.burnoutStacks++;
+    if(G.burnoutStacks >= 2) {
+      addLog(`You've been running on fumes. <b>Burnout hits!</b> -15 Health, -20 Sanity`, 'danger');
+      modStat('health', -15);
+      modStat('sanity', -20);
+      modStress(10);
+      G.burnoutStacks = 0;
     }
-    gameState.economyState = ECONOMY_STATES[gameState.economyStateIndex];
-    gameState.economyCycleTurnsLeft = Math.floor(Math.random() * 25) + 24;
-    addLog(`📊 Economic Cycle Changed: Economy is now in ${gameState.economyState}!`, 'event');
-  }
-}
-
-function updateInflation() {
-  const change = (Math.random() - 0.4) * 0.003;
-  gameState.inflationRate = Math.max(0.005, Math.min(0.12, gameState.inflationRate + change));
-  // Inflation gradually increases living expenses
-  gameState.livingExpenses = Math.round(gameState.livingExpenses * (1 + gameState.inflationRate / 120));
-}
-
-// Random walk with volatility
-function randomWalk(price, annualReturn, volatility, multiplier) {
-  const monthlyReturn = annualReturn / 12;
-  const monthlyVol = volatility / Math.sqrt(12);
-  const z = gaussianRandom();
-  const change = monthlyReturn * multiplier + monthlyVol * z;
-  return Math.max(0.01, price * (1 + change));
-}
-
-function gaussianRandom() {
-  let u = 0, v = 0;
-  while(u === 0) u = Math.random();
-  while(v === 0) v = Math.random();
-  return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-}
-
-function updateStocks() {
-  const ecoMult = getEconomyMultiplier();
-  
-  // Index Fund: Low vol
-  const ifPrev = gameState.stocks.indexFund.price;
-  gameState.stocks.indexFund.price = randomWalk(
-    gameState.stocks.indexFund.price, 0.085, 0.14, ecoMult
-  );
-  gameState.stocks.indexFund.history.push(gameState.stocks.indexFund.price);
-  
-  // Tech Stock: High vol
-  const techVol = gameState.economyState === 'BOOM' ? 0.65 : 
-                  gameState.economyState === 'RECESSION' ? 0.70 : 0.50;
-  gameState.stocks.techStock.price = randomWalk(
-    gameState.stocks.techStock.price, 0.15, techVol, ecoMult
-  );
-  gameState.stocks.techStock.history.push(gameState.stocks.techStock.price);
-  
-  // Div Stock: Stable
-  gameState.stocks.divStock.price = randomWalk(
-    gameState.stocks.divStock.price, 0.04, 0.10, ecoMult
-  );
-  gameState.stocks.divStock.history.push(gameState.stocks.divStock.price);
-  
-  // Keep history at 10 entries
-  ['indexFund','techStock','divStock'].forEach(k => {
-    if(gameState.stocks[k].history.length > 10) gameState.stocks[k].history.shift();
-  });
-}
-
-function updateCrypto() {
-  const cryptoMult = getCryptoMultiplier();
-  const sentiment = gameState.marketSentiment;
-  
-  let cryptoVol = 0.7;
-  let cryptoReturn = 0.15 / 12;
-  
-  if(gameState.cryptoHypeActive) {
-    cryptoReturn += 1.0; // 100% surge
-    gameState.cryptoHypeActive = false;
-    addLog('🚀 CRYPTO HYPE: Bitcoin surged due to last turn\'s hype wave!', 'gain');
-  }
-  
-  // Extreme events based on market state
-  if(gameState.economyState === 'DEPRESSION' && Math.random() < 0.12) {
-    // Crypto crash
-    gameState.crypto.bitcoin.price *= (0.2 + Math.random() * 0.2);
-    addLog('₿ BITCOIN CRASH: Extreme selloff! -60% to -80%!', 'loss');
-  } else if(gameState.economyState === 'BOOM' && Math.random() < 0.10) {
-    // Bull run
-    gameState.crypto.bitcoin.price *= (2.0 + Math.random() * 2.0);
-    addLog('₿ BITCOIN BULL RUN: Parabolic move! +200% to +400%!', 'gain');
   } else {
-    const z = gaussianRandom();
-    const sentimentBoost = sentiment * 0.5;
-    const change = cryptoReturn * cryptoMult + cryptoVol / Math.sqrt(12) * z + sentimentBoost / 12;
-    gameState.crypto.bitcoin.price = Math.max(100, gameState.crypto.bitcoin.price * (1 + change));
+    G.burnoutStacks = Math.max(0, G.burnoutStacks-1);
   }
-  
-  gameState.crypto.bitcoin.history.push(gameState.crypto.bitcoin.price);
-  if(gameState.crypto.bitcoin.history.length > 10) gameState.crypto.bitcoin.history.shift();
-}
+  G.ap = G.maxAP;
 
-function updateRealEstate() {
-  const appreciation = getREAppreciation() + (Math.random() - 0.5) * 0.003;
-  gameState.currentResPrice = Math.max(50000, gameState.currentResPrice * (1 + appreciation));
-  gameState.currentComPrice = Math.max(150000, gameState.currentComPrice * (1 + appreciation));
-  
-  gameState.properties.forEach(prop => {
-    const propAppreciation = appreciation + (Math.random() - 0.5) * 0.002;
-    prop.value = Math.max(prop.value * 0.5, prop.value * (1 + propAppreciation));
-  });
-}
+  // ---- Yearly events (each Q1) ----
+  if(G.quarter === 1) {
+    processYearlyEvents();
+  }
 
-// ============================================================
-// TURN PROCESSING
-// ============================================================
+  // ---- Apply passive effects ----
+  applyPassiveEffects();
 
-function processCashFlows() {
-  let flowLog = [];
-  
-  // Income
-  gameState.cash += gameState.salary;
-  flowLog.push(`💼 Salary: +$${fmt(gameState.salary)}`);
-  
-  // HYSA Interest (4% APY compounded monthly)
-  if(gameState.cash > 0) {
-    const hysaInterest = gameState.cash * (0.04 / 12);
-    gameState.cash += hysaInterest;
-    gameState.hysaTotalEarned += hysaInterest;
-    flowLog.push(`🏦 Savings interest: +$${fmt2(hysaInterest)}`);
-  }
-  
-  // Dividends (quarterly, months 3,6,9,12)
-  if((gameState.turn % 3) === 0 && gameState.stocks.divStock.shares > 0) {
-    const divYield = 0.01; // 1% quarterly
-    const divPayout = gameState.stocks.divStock.shares * gameState.stocks.divStock.price * divYield;
-    gameState.cash += divPayout;
-    gameState.dividendsReceived += divPayout;
-    flowLog.push(`📈 Dividends: +$${fmt2(divPayout)}`);
-    addLog(`📈 Dividend payout received: +$${fmt2(divPayout)}`, 'gain');
-  }
-  
-  // Rental Income
-  let totalRental = 0;
-  let totalPropertyCosts = 0;
-  gameState.properties.forEach(prop => {
-    gameState.cash += prop.rentalIncome;
-    totalRental += prop.rentalIncome;
-    gameState.cash -= prop.maintenanceCost;
-    totalPropertyCosts += prop.maintenanceCost;
-    if(prop.mortgage > 0) {
-      const mortgagePayment = prop.monthlyMortgagePayment;
-      const interestPart = prop.mortgage * (0.065 / 12);
-      const principalPart = mortgagePayment - interestPart;
-      prop.mortgage = Math.max(0, prop.mortgage - principalPart);
-      gameState.cash -= mortgagePayment;
-      totalPropertyCosts += mortgagePayment;
-    }
-  });
-  if(totalRental > 0) flowLog.push(`🏠 Rental: +$${fmt(totalRental)} (costs: -$${fmt(totalPropertyCosts)})`);
-  
-  // Side Hustle Income
-  let sideHustleIncome = 0;
-  if(gameState.sideHustles.freelance) sideHustleIncome += 500;
-  if(gameState.sideHustles.content) {
-    gameState.sideHustles.contentMonths++;
-    const contentIncome = Math.min(gameState.sideHustles.contentMonths * 33, 200);
-    sideHustleIncome += contentIncome;
-  }
-  if(gameState.sideHustles.business) sideHustleIncome += Math.floor(Math.random() * 400 + 600);
-  if(sideHustleIncome > 0) {
-    gameState.cash += sideHustleIncome;
-    flowLog.push(`⚡ Side hustles: +$${fmt(sideHustleIncome)}`);
-  }
-  
-  // Living Expenses
-  gameState.cash -= gameState.livingExpenses;
-  flowLog.push(`🏠 Living expenses: -$${fmt(gameState.livingExpenses)}`);
-  
-  // Student Loan
-  if(gameState.studentLoanBalance > 0) {
-    const interest = gameState.studentLoanBalance * (gameState.studentLoanRate / 12);
-    const payment = Math.min(gameState.studentLoanBalance + interest, gameState.minLoanPayment);
-    gameState.studentLoanBalance = Math.max(0, gameState.studentLoanBalance + interest - payment);
-    gameState.cash -= payment;
-    flowLog.push(`🎓 Loan payment: -$${fmt2(payment)}`);
-    if(gameState.studentLoanBalance === 0) {
-      addLog('🎓 STUDENT LOAN PAID OFF! Your credit score improved!', 'gain');
-      gameState.creditScore = Math.min(850, gameState.creditScore + 30);
+  // ---- Economy & Financial ----
+  processFinancials();
+
+  // ---- Market fluctuations ----
+  fluctuateMarkets();
+
+  // ---- Active disease effects ----
+  processDiseases();
+
+  // ---- Prison tick ----
+  if(G.inPrison) {
+    G.prisonQuarters--;
+    addLog(`You serve time in prison. <b>${G.prisonQuarters} quarters remaining.</b> Stress rises.`, 'danger');
+    modStress(15);
+    modStat('sanity', -8);
+    modStat('reputation', -5);
+    if(G.prisonQuarters <= 0) {
+      G.inPrison = false;
+      addLog(`You have been released from prison. Life must go on.`, 'warn');
+      modStat('reputation', -20); // permanent rep hit
     }
   }
-  
-  // Insurance
-  const insuranceCost = (gameState.hasHealthInsurance ? 150 : 0) + (gameState.hasPropertyInsurance ? 200 : 0);
-  if(insuranceCost > 0) {
-    gameState.cash -= insuranceCost;
-    flowLog.push(`🛡️ Insurance: -$${fmt(insuranceCost)}`);
-  }
-  
-  addLog(`📅 Turn ${gameState.turn}: ${flowLog.join(' | ')}`, 'info');
-}
 
-function updateCreditScore() {
-  let delta = 0;
-  // Positive: no missed payments, high NW, low debt ratio
-  if(gameState.cash > 0) delta += 1;
-  if(gameState.studentLoanBalance === 0) delta += 0.5;
-  const totalAssets = calcTotalAssets();
-  const totalLiab = calcTotalLiabilities();
-  const debtToAsset = totalAssets > 0 ? totalLiab / totalAssets : 1;
-  if(debtToAsset < 0.3) delta += 1;
-  else if(debtToAsset > 0.8) delta -= 1;
-  if(gameState.cash < 0) delta -= 5;
-  
-  // Random drift
-  delta += (Math.random() - 0.5) * 2;
-  gameState.creditScore = Math.round(Math.max(300, Math.min(850, gameState.creditScore + delta)));
-}
+  // ---- NPC events ----
+  processNPCEvents();
 
-// ============================================================
-// CALCULATIONS
-// ============================================================
+  // ---- Random world events ----
+  triggerRandomEvents();
 
-function calcStockValue() {
-  const s = gameState.stocks;
-  return s.indexFund.shares * s.indexFund.price +
-         s.techStock.shares * s.techStock.price +
-         s.divStock.shares * s.divStock.price;
-}
+  // ---- School progress ----
+  if(G.inSchool) processSchool();
 
-function calcCryptoValue() {
-  return gameState.crypto.bitcoin.amount * gameState.crypto.bitcoin.price;
-}
+  // ---- Business tick ----
+  if(G.company) processBusiness();
 
-function calcREValue() {
-  return gameState.properties.reduce((sum, p) => sum + p.value, 0);
-}
+  // ---- Aging effects ----
+  applyAgingEffects();
 
-function calcTotalAssets() {
-  return Math.max(0, gameState.cash) + calcStockValue() + calcCryptoValue() + calcREValue();
-}
+  // ---- Net worth calculation ----
+  recalcNetWorth();
 
-function calcTotalLiabilities() {
-  const mortgages = gameState.properties.reduce((sum, p) => sum + p.mortgage, 0);
-  return gameState.studentLoanBalance + mortgages;
-}
+  // ---- Check game-over conditions ----
+  checkGameOver();
 
-function calcNetWorth() {
-  return calcTotalAssets() - calcTotalLiabilities();
-}
-
-function calcMonthlyIncome() {
-  let income = gameState.salary;
-  if(gameState.sideHustles.freelance) income += 500;
-  if(gameState.sideHustles.content) income += Math.min(gameState.sideHustles.contentMonths * 33, 200);
-  if(gameState.sideHustles.business) income += 800;
-  income += gameState.properties.reduce((s,p) => s + p.rentalIncome, 0);
-  income += gameState.cash > 0 ? gameState.cash * (0.04/12) : 0;
-  return income;
-}
-
-function calcMonthlyExpenses() {
-  let exp = gameState.livingExpenses + gameState.minLoanPayment;
-  if(gameState.hasHealthInsurance) exp += 150;
-  if(gameState.hasPropertyInsurance) exp += 200;
-  exp += gameState.properties.reduce((s,p) => s + p.maintenanceCost + (p.mortgage > 0 ? p.monthlyMortgagePayment : 0), 0);
-  return exp;
-}
-
-function calcPassiveIncome() {
-  let passive = 0;
-  passive += gameState.properties.reduce((s,p) => s + p.rentalIncome - p.maintenanceCost - (p.mortgage > 0 ? p.monthlyMortgagePayment : 0), 0);
-  passive += gameState.cash > 0 ? gameState.cash * (0.04/12) : 0;
-  if(gameState.sideHustles.business) passive += 800;
-  if(gameState.sideHustles.content && gameState.sideHustles.contentMonths >= 6) passive += 200;
-  return passive;
-}
-
-// ============================================================
-// MAIN TURN ENGINE
-// ============================================================
-
-function endTurn() {
-  if(isProcessingTurn) return;
-  isProcessingTurn = true;
-  
-  document.getElementById('endTurnBtn').disabled = true;
-  document.getElementById('endTurnBtn').textContent = '⏳ Processing...';
-  
-  setTimeout(() => {
-    doEndTurn();
-    document.getElementById('endTurnBtn').disabled = false;
-    document.getElementById('endTurnBtn').innerHTML = '▶ END TURN';
-    isProcessingTurn = false;
-  }, 200);
-}
-
-function doEndTurn() {
-  // Advance time
-  gameState.turn++;
-  gameState.month = (gameState.month + 1) % 12;
-  if(gameState.month === 0) {
-    gameState.year++;
-    gameState.age++;
-  }
-  
-  // Update macroeconomic variables
-  updateMarketSentiment();
-  updateEconomyCycle();
-  updateInflation();
-  
-  // Update asset prices
-  updateStocks();
-  updateCrypto();
-  updateRealEstate();
-  
-  // Process cash flows
-  processCashFlows();
-  
-  // Update credit score
-  updateCreditScore();
-  
-  // Check for life event (15% chance)
-  if(Math.random() < 0.15) {
-    const ev = LIFE_EVENTS[Math.floor(Math.random() * LIFE_EVENTS.length)];
-    triggerLifeEvent(ev);
-  }
-  
-  // Check win/loss conditions
-  const nw = calcNetWorth();
-  const passive = calcPassiveIncome();
-  const expenses = calcMonthlyExpenses();
-  
-  if(nw >= 2000000) {
-    showGameModal('win', nw);
-    return;
-  }
-  
-  if(passive > 0 && passive >= expenses && nw > 0) {
-    showGameModal('passive_win', nw);
-    return;
-  }
-  
-  if(gameState.cash < 0) {
-    showGameModal('bankruptcy', nw);
-    return;
-  }
-  
-  if(gameState.age >= 65) {
-    showGameModal('retired', nw);
-    return;
-  }
-  
-  // Render
   renderAll();
+  document.getElementById('btn-age').disabled = false;
+
+  // Process any queued dialogs
+  processDialogQueue();
 }
 
 // ============================================================
-// LIFE EVENTS
+// PASSIVE EFFECTS PER QUARTER
 // ============================================================
-
-function triggerLifeEvent(ev) {
-  const result = ev.effect(gameState);
-  
-  // Show modal
-  document.getElementById('eventIcon').textContent = ev.icon;
-  document.getElementById('eventTitle').textContent = ev.title;
-  document.getElementById('eventDesc').textContent = ev.desc;
-  document.getElementById('eventChoices').innerHTML = '';
-  document.getElementById('eventDismiss').style.display = 'block';
-  document.getElementById('eventModal').style.display = 'flex';
-  
-  addLog(`⚡ LIFE EVENT: ${ev.title}`, 'event');
-}
-
-function dismissEvent() {
-  document.getElementById('eventModal').style.display = 'none';
-  renderAll();
+function applyPassiveEffects() {
+  // Stamina affects health recovery
+  const staminaBonus = G.stamina > 70 ? 2 : 0;
+  // Stress degrades sanity and health
+  if(G.stress > 70) {
+    modStat('sanity', -Math.floor((G.stress-70)/10));
+    modStat('health', -1);
+  }
+  if(G.stress > 90) {
+    modStat('health', -2);
+    addLog(`Chronic stress is destroying your body. Health and Sanity degrading.`, 'danger');
+  }
+  // Natural health recovery (from immune system)
+  const immuneRec = G.inPrison ? 0 : Math.floor(G.immune/50);
+  modStat('health', immuneRec + staminaBonus);
+  // Immune degrades slowly with age over 40
+  if(G.age > 40) modStat('immune', -Math.floor((G.age-40)/20));
+  // Focus degrades with stress
+  modStat('focus', G.stress > 60 ? -5 : 1);
+  // Appearance natural aging
+  if(G.age > 30 && !hasTrait('photogenic')) modStat('appearance', -1);
+  if(G.age > 50) modStat('appearance', -1);
+  // Trait: glutton → appearance loss if no exercise recently
+  if(hasTrait('glutton') && rng(10)<4) {
+    modStat('appearance', -2);
+    modStat('health', -1);
+  }
+  // Trait: paranoid → sanity drain
+  if(hasTrait('paranoid')) modStat('sanity', -10);
+  // Sanity effects
+  if(G.sanity < 20) {
+    modStress(10);
+    addLog(`Your mental state is deteriorating rapidly.`, 'danger');
+  }
+  // Pandemic
+  if(G.pandemicActive) {
+    modStat('health', -3);
+    modStat('immune', -2);
+    if(G.quarter===1) addLog(`🦠 Pandemic continues to ravage the population. Health declining.`, 'danger');
+  }
 }
 
 // ============================================================
-// BUY / SELL
+// AGING EFFECTS
 // ============================================================
-
-function buyStock(ticker) {
-  const inputEl = document.getElementById(`buy-${ticker}`);
-  const qty = parseFloat(inputEl.value);
-  if(isNaN(qty) || qty <= 0) { addLog('⚠️ Enter a valid quantity', 'warn'); return; }
-  
-  let price, shareKey;
-  if(ticker === 'bitcoin') {
-    price = gameState.crypto.bitcoin.price * qty;
-    shareKey = 'amount';
-  } else {
-    if(!Number.isInteger(qty)) { addLog('⚠️ Must buy whole shares for stocks', 'warn'); return; }
-    price = gameState.stocks[ticker].price * qty;
-    shareKey = 'shares';
-  }
-  
-  if(price > gameState.cash) {
-    addLog(`⚠️ Insufficient funds! Need $${fmt2(price)}, have $${fmt2(gameState.cash)}`, 'warn');
-    return;
-  }
-  
-  gameState.cash -= price;
-  if(ticker === 'bitcoin') {
-    gameState.crypto.bitcoin.amount += qty;
-  } else {
-    gameState.stocks[ticker].shares += qty;
-  }
-  
-  addLog(`✅ Bought ${qty} ${ticker === 'bitcoin' ? 'BTC' : 'shares of ' + ticker} for $${fmt2(price)}`, 'gain');
-  inputEl.value = '';
-  renderAll();
+function applyAgingEffects() {
+  const age = G.age;
+  // Progressive decline
+  if(age >= 60) { modStat('stamina', -2); modStat('health', -1); }
+  if(age >= 70) { modStat('stamina', -2); modStat('health', -2); modStat('immune', -2); }
+  if(age >= 80) { modStat('health', -3); }
+  if(age >= 90) { modStat('health', -5); modStat('sanity', -3); }
+  // Disease probability increases with age
+  // Handled in triggerRandomEvents
 }
 
-function sellStock(ticker) {
-  const inputEl = document.getElementById(`buy-${ticker}`);
-  const qty = parseFloat(inputEl.value);
-  if(isNaN(qty) || qty <= 0) { addLog('⚠️ Enter quantity to sell', 'warn'); return; }
-  
-  let currentHeld, saleValue;
-  if(ticker === 'bitcoin') {
-    currentHeld = gameState.crypto.bitcoin.amount;
-    saleValue = gameState.crypto.bitcoin.price * qty;
-  } else {
-    if(!Number.isInteger(qty)) { addLog('⚠️ Must sell whole shares', 'warn'); return; }
-    currentHeld = gameState.stocks[ticker].shares;
-    saleValue = gameState.stocks[ticker].price * qty;
-  }
-  
-  if(qty > currentHeld) {
-    addLog(`⚠️ You only hold ${currentHeld} ${ticker === 'bitcoin' ? 'BTC' : 'shares'}!`, 'warn');
-    return;
-  }
-  
-  if(ticker === 'bitcoin') {
-    gameState.crypto.bitcoin.amount = Math.max(0, gameState.crypto.bitcoin.amount - qty);
-  } else {
-    gameState.stocks[ticker].shares -= qty;
-  }
-  
-  gameState.cash += saleValue;
-  addLog(`💰 Sold ${qty} ${ticker === 'bitcoin' ? 'BTC' : 'shares of ' + ticker} for $${fmt2(saleValue)}`, 'gain');
-  inputEl.value = '';
-  renderAll();
-}
+// ============================================================
+// FINANCIAL PROCESSING
+// ============================================================
+function processFinancials() {
+  if(G.age < 16) return; // Children don't have finances yet
 
-function buyProperty(type) {
-  const isResidential = type === 'residential';
-  const propPrice = isResidential ? gameState.currentResPrice : gameState.currentComPrice;
-  const downPaymentPct = isResidential ? 0.20 : 0.25;
-  const downPayment = propPrice * downPaymentPct;
-  const minCredit = isResidential ? 650 : 720;
-  const rentalIncome = isResidential ? 1200 : 3500;
-  const maintenanceCost = isResidential ? 400 : 1000;
-  const mortgageRate = 0.065; // 6.5%
-  const mortgageAmount = propPrice - downPayment;
-  const mortgageTermMonths = 360; // 30 years
-  const monthlyRate = mortgageRate / 12;
-  const monthlyMortgagePayment = mortgageAmount * (monthlyRate * Math.pow(1 + monthlyRate, mortgageTermMonths)) / (Math.pow(1 + monthlyRate, mortgageTermMonths) - 1);
-  
-  if(gameState.creditScore < minCredit) {
-    addLog(`⚠️ Credit score too low! Need ${minCredit}, have ${gameState.creditScore}`, 'warn');
-    return;
+  // Annual inflation update each Q1
+  if(G.quarter === 1) {
+    G.inflation *= (1 + G.inflationRate);
+    if(G.economy === 'boom') G.inflation *= 1.01;
+    addLog(`💰 Inflation rate: ${(G.inflationRate*100).toFixed(1)}%. Cost of living now at <b>${(G.inflation*100).toFixed(0)}%</b> of baseline.`, 'warn');
   }
-  
-  if(gameState.cash < downPayment) {
-    addLog(`⚠️ Insufficient cash for down payment! Need $${fmt2(downPayment)}, have $${fmt2(gameState.cash)}`, 'warn');
-    return;
-  }
-  
-  gameState.cash -= downPayment;
-  const propName = isResidential ? `Residential #${gameState.properties.filter(p=>p.type==='residential').length+1}` : `Commercial #${gameState.properties.filter(p=>p.type==='commercial').length+1}`;
-  
-  gameState.properties.push({
-    type,
-    name: propName,
-    value: propPrice,
-    purchasePrice: propPrice,
-    mortgage: mortgageAmount,
-    monthlyMortgagePayment: Math.round(monthlyMortgagePayment),
-    rentalIncome,
-    maintenanceCost,
-    purchasedTurn: gameState.turn,
-  });
-  
-  addLog(`🏠 Purchased ${propName} for $${fmt2(propPrice)}! Down: $${fmt2(downPayment)}, Mortgage: $${fmt2(mortgageAmount)}`, 'gain');
-  gameState.creditScore = Math.max(300, gameState.creditScore - 15); // Hard inquiry
-  renderAll();
-}
 
-function makeExtraLoanPayment() {
-  if(gameState.studentLoanBalance <= 0) { addLog('✅ Student loan already paid off!', 'info'); return; }
-  const extraEl = document.getElementById('extraLoanPayment');
-  const amount = parseFloat(extraEl.value);
-  if(isNaN(amount) || amount <= 0) { addLog('⚠️ Enter a valid payment amount', 'warn'); return; }
-  if(amount > gameState.cash) { addLog(`⚠️ Insufficient cash! Have $${fmt2(gameState.cash)}`, 'warn'); return; }
-  const actualPayment = Math.min(amount, gameState.studentLoanBalance);
-  gameState.cash -= actualPayment;
-  gameState.studentLoanBalance -= actualPayment;
-  addLog(`🎓 Extra loan payment: -$${fmt2(actualPayment)}. Remaining: $${fmt2(gameState.studentLoanBalance)}`, 'gain');
-  if(gameState.studentLoanBalance === 0) {
-    addLog('🎉 STUDENT LOAN PAID OFF EARLY! Credit score +30!', 'gain');
-    gameState.creditScore = Math.min(850, gameState.creditScore + 30);
-  }
-  extraEl.value = '';
-  renderAll();
-}
+  // Calculate quarterly salary (after tax, quarterly = annual/4)
+  const annualSalary = G.salary;
+  const annualTax = calcTax(annualSalary);
+  const quarterlyTax = annualTax / 4;
+  const quarterlyNet = (annualSalary - annualTax) / 4;
 
-function toggleInsurance(type) {
-  if(type === 'health') {
-    gameState.hasHealthInsurance = !gameState.hasHealthInsurance;
-    addLog(gameState.hasHealthInsurance ? '🛡️ Health insurance activated. $150/mo' : '⚠️ Health insurance cancelled!', gameState.hasHealthInsurance ? 'gain' : 'warn');
-  } else {
-    gameState.hasPropertyInsurance = !gameState.hasPropertyInsurance;
-    addLog(gameState.hasPropertyInsurance ? '🛡️ Property insurance activated. $200/mo' : '⚠️ Property insurance cancelled!', gameState.hasPropertyInsurance ? 'gain' : 'warn');
+  if(annualSalary > 0) {
+    G.cash += quarterlyNet;
+    addLog(`Paycheck received: <b>${fmtMoney(quarterlyNet)}</b> net (tax: ${fmtMoney(quarterlyTax)})`, 'success');
   }
-  renderAll();
-}
 
-function toggleSideHustle(type) {
-  if(type === 'freelance') {
-    gameState.sideHustles.freelance = !gameState.sideHustles.freelance;
-    addLog(gameState.sideHustles.freelance ? '⚡ Started freelancing! +$500/mo' : '⚡ Stopped freelancing', gameState.sideHustles.freelance ? 'gain' : 'warn');
-  } else if(type === 'content') {
-    gameState.sideHustles.content = !gameState.sideHustles.content;
-    if(gameState.sideHustles.content) gameState.sideHustles.contentMonths = 0;
-    addLog(gameState.sideHustles.content ? '⚡ Started content creation!' : '⚡ Stopped content creation', gameState.sideHustles.content ? 'gain' : 'warn');
-  } else if(type === 'business') {
-    if(!gameState.sideHustles.business) {
-      if(gameState.cash < 2000) { addLog('⚠️ Need $2,000 to start a business!', 'warn'); return; }
-      gameState.cash -= 2000;
-      gameState.sideHustles.business = true;
-      addLog('⚡ Online business launched! Cost $2,000. Generating ~$800/mo.', 'gain');
+  // Cost of living (rent / basic expenses)
+  const baseCoL = 2500; // quarterly base
+  const coL = baseCoL * G.inflation * (G.economy === 'recession' ? 0.95 : 1);
+  // Housing costs
+  let housingCost = 0;
+  if(G.properties.length > 0) {
+    G.properties.forEach(p => {
+      if(p.mortgage > 0) {
+        housingCost += p.mortgage;
+      }
+    });
+  } else if(G.age >= 18) {
+    housingCost = 800 * G.inflation; // renting
+  }
+  // Total expenses this quarter
+  const totalExpenses = coL + housingCost;
+  G.cash -= totalExpenses;
+  G.expenses = totalExpenses;
+  if(totalExpenses > 0) {
+    addLog(`Living expenses: <b>${fmtMoney(totalExpenses)}</b> (CoL: ${fmtMoney(coL)}, Housing: ${fmtMoney(housingCost)})`, 'warn');
+  }
+
+  // Debt payments
+  G.debts.forEach(d => {
+    // Interest accrual (quarterly rate = annual rate / 4)
+    const qRate = d.rate / 4;
+    const interest = d.amount * qRate;
+    d.amount += interest;
+    // Minimum payment
+    const payment = Math.min(d.minPayment, d.amount);
+    if(G.cash >= payment) {
+      G.cash -= payment;
+      d.amount -= payment;
+      updateCreditScore(2);
+      if(d.amount <= 0) {
+        addLog(`🎉 Debt "<b>${d.name}</b>" fully paid off!`, 'success');
+        updateCreditScore(20);
+      }
     } else {
-      gameState.sideHustles.business = false;
-      addLog('⚡ Closed online business', 'warn');
+      // Missed payment
+      updateCreditScore(-25);
+      modStress(8);
+      addLog(`⚠️ Missed payment on <b>${d.name}</b>! Credit score damaged.`, 'danger');
+    }
+  });
+  G.debts = G.debts.filter(d => d.amount > 0.01);
+
+  // Homeless/broke check
+  if(G.cash < -15000) {
+    addLog(`💀 You are <b>severely in debt</b> with no income. Homelessness imminent.`, 'danger');
+    modStat('health', -5);
+    modStat('sanity', -10);
+    modStress(20);
+  }
+  if(G.cash < -50000 && G.netWorth < -40000) {
+    gameOver('Died homeless and destitute after total financial collapse.');
+  }
+}
+
+// ============================================================
+// MARKET FLUCTUATIONS — Weighted random walk with trends
+// ============================================================
+function fluctuateMarkets() {
+  ASSETS.forEach(a => {
+    // Trend momentum: persists a few quarters (mean-reverting random walk)
+    a.trend += rngFloat(-0.2, 0.2);
+    a.trend = clamp(a.trend, -0.5, 0.5);
+
+    // Economy affects all markets
+    let econMod = 0;
+    if(G.economy === 'boom') econMod = 0.01;
+    if(G.economy === 'recession') econMod = -0.02;
+
+    // War affects energy stocks positively, others negatively
+    if(G.warActive) {
+      if(a.id === 'energy') econMod += 0.03;
+      else econMod -= 0.01;
+    }
+
+    // Pandemic affects pharma positively
+    if(G.pandemicActive && a.id === 'pharma') econMod += 0.04;
+
+    // Black swan events (~2% chance per quarter per asset)
+    let blackSwan = 0;
+    if(Math.random() < 0.02) {
+      blackSwan = rngFloat(-0.25, 0.25); // extreme move
+      if(Math.abs(blackSwan) > 0.10) {
+        addLog(`🦢 <b>Black swan event!</b> ${a.name} moves ${(blackSwan*100).toFixed(0)}%!`, 'event');
+      }
+    }
+
+    // Final price change (normal distribution approximation via sum of randoms)
+    const rawChange = (
+      a.trend * 0.02 +
+      rngFloat(-a.volatility, a.volatility) +
+      econMod +
+      blackSwan
+    );
+
+    const oldPrice = G.assetPrices[a.id];
+    const newPrice = Math.max(oldPrice * (1 + rawChange), 0.01);
+    G.assetPrices[a.id] = newPrice;
+    G.assetHistory[a.id].push(newPrice);
+    if(G.assetHistory[a.id].length > 20) G.assetHistory[a.id].shift();
+  });
+}
+
+// ============================================================
+// DISEASE PROCESSING
+// ============================================================
+function processDiseases() {
+  G.diseases.forEach(d => {
+    const def = DISEASES.find(x=>x.id===d.id);
+    if(!def) return;
+    modStat('health', -def.hpDmg);
+    // Apply special effects
+    if(d.id === 'diabetes') modStat('stamina', -5);
+    if(d.id === 'depression') { modStat('sanity', -10); modStat('focus', -20); }
+    if(d.id === 'anxiety_d') modStress(15);
+    d.remaining--;
+    if(d.remaining <= 0) {
+      addLog(`Your <b>${def.name}</b> has run its course. Recovery complete.`, 'success');
+    }
+    // Quarterly medical cost
+    G.cash -= def.cost / def.duration;
+  });
+  G.diseases = G.diseases.filter(d => d.remaining > 0);
+}
+
+// ============================================================
+// SCHOOL PROCESSING
+// ============================================================
+function processSchool() {
+  // GPA naturally degrades without study; focus and smarts help
+  const naturalDecay = -2;
+  const focusBonus = G.focus > 70 ? 1 : 0;
+  G.gpa = clamp(G.gpa + naturalDecay + focusBonus, 0, 100);
+  modStress(10); // School is stressful
+  // Tuition quarterly cost
+  const tuition = G.schoolType === 'bachelor' ? 5000 : (G.schoolType === 'master' ? 8000 : 0);
+  if(G.cash >= tuition) {
+    G.cash -= tuition;
+  } else {
+    // Take student loan
+    const loanAmt = tuition - G.cash;
+    G.cash = 0;
+    addDebt('Student Loan ('+G.schoolType+')', loanAmt, 0.065, 200);
+    G.schoolDebt += loanAmt;
+    addLog(`Can't afford tuition. Took student loan of <b>${fmtMoney(loanAmt)}</b> at 6.5% interest.`, 'warn');
+  }
+
+  // Graduation check
+  const qtrsNeeded = G.schoolType === 'bachelor' ? 16 : 8; // 4 years BA, 2 years MA
+  if(!G.schoolStartQtr) G.schoolStartQtr = G.totalQuarters;
+  const elapsed = G.totalQuarters - G.schoolStartQtr;
+  if(elapsed >= qtrsNeeded) {
+    if(G.gpa >= 40) {
+      const level = G.schoolType === 'bachelor' ? 2 : 3;
+      G.education = level;
+      G.inSchool = false;
+      const title = G.schoolType === 'bachelor' ? 'Bachelor\'s Degree' : 'Master\'s Degree';
+      addLog(`🎓 <b>Graduated!</b> You earned your <b>${title}</b> with a GPA of ${G.gpa.toFixed(0)}.`, 'success');
+      modStat('smarts', 10);
+      modStat('reputation', 15);
+      G.schoolType = null;
+    } else {
+      addLog(`📉 Your GPA is too low (${G.gpa.toFixed(0)}). Academic probation — one more quarter.`, 'danger');
+      modStress(20);
     }
   }
+}
+
+// ============================================================
+// BUSINESS PROCESSING
+// ============================================================
+function processBusiness() {
+  const co = G.company;
+  // Revenue = price × (market demand factor) × marketing effect
+  // Market demand: random factor influenced by economy
+  const demandBase = 100 + rng(50);
+  const econMod = G.economy === 'boom' ? 1.2 : G.economy === 'recession' ? 0.7 : 1.0;
+  const marketingMod = 1 + (co.marketing / 10000);
+  const demand = demandBase * econMod * marketingMod;
+  const revenue = co.price * demand * co.employees * 0.5;
+  // Costs = employee salaries + marketing + overhead
+  const costs = (co.employees * co.employeeSalary) + co.marketing + 2000;
+  const profit = revenue - costs;
+  co.revenue = revenue;
+  co.profit = profit;
+  if(profit > 0) {
+    G.cash += profit * 0.75; // owner takes 75% of profit
+    co.cashflowNeg = 0;
+    addLog(`🏢 <b>${co.name}</b>: Revenue ${fmtMoney(revenue)}, Profit <b>${fmtMoney(profit)}</b>`, 'success');
+  } else {
+    co.cashflowNeg = (co.cashflowNeg||0) + 1;
+    addLog(`🏢 <b>${co.name}</b>: Losses of ${fmtMoney(-profit)} this quarter. Cash flow negative (${co.cashflowNeg}/2 before bankruptcy).`, 'danger');
+    if(co.cashflowNeg >= 2) {
+      addLog(`💥 <b>${co.name}</b> has gone <b>bankrupt</b>! You lose all invested capital.`, 'danger');
+      G.bankruptcyCount++;
+      G.company = null;
+      updateCreditScore(-80);
+      modStat('reputation', -20);
+      modStress(25);
+    }
+  }
+}
+
+// ============================================================
+// NPC EVENTS
+// ============================================================
+function processNPCEvents() {
+  G.npcs.forEach(npc => {
+    if(!npc.alive) return;
+    // Natural relationship decay without interaction
+    npc.relationship = clamp(npc.relationship - 1, 0, 100);
+    npc.trust = clamp(npc.trust - 0.5, 0, 100);
+
+    // NPC random death chance (age-based)
+    if(npc.age > 60) {
+      const deathChance = (npc.age - 60) * 0.003;
+      if(Math.random() < deathChance) {
+        npc.alive = false;
+        addLog(`💔 <b>${npc.name}</b> (${npc.relation}) has passed away at age ${npc.age}. You grieve deeply.`, 'danger');
+        modStat('sanity', -20);
+        modStress(20);
+        return;
+      }
+    }
+    npc.age++;
+
+    // Partner infidelity chance (if low relationship)
+    if(['Partner','Spouse'].includes(npc.relation) && npc.relationship < 30) {
+      if(Math.random() < 0.08) {
+        addLog(`💔 <b>${npc.name}</b> (your ${npc.relation}) has been unfaithful! Relationship: ${npc.relationship}.`, 'danger');
+        npc.trust = 0;
+        modStress(30);
+        modStat('sanity', -15);
+      }
+    }
+    // NPC asks for money (dependency)
+    if(npc.dependency > 50 && rng(10) < 3) {
+      const ask = rng(2000) + 500;
+      queueDialog({
+        title: `💸 ${npc.name} Needs Money`,
+        sub: `${npc.relation} · Relationship: ${npc.relationship}`,
+        body: `<b>${npc.name}</b> calls you, sounding desperate. "I hate to ask, but I need ${fmtMoney(ask)}. Things have been really rough lately..."`,
+        choices: [
+          { label: `Give ${fmtMoney(ask)}`, cost: `Cost: ${fmtMoney(ask)}`, action: () => {
+            if(G.cash >= ask) {
+              G.cash -= ask;
+              npc.relationship = clamp(npc.relationship+15,0,100);
+              npc.trust = clamp(npc.trust+10,0,100);
+              addLog(`You gave ${fmtMoney(ask)} to ${npc.name}. They are grateful.`, 'success');
+            } else {
+              addLog(`You couldn't afford it. ${npc.name} is disappointed.`, 'warn');
+              npc.relationship -= 10;
+            }
+          }},
+          { label: `Refuse`, action: () => {
+            npc.relationship = clamp(npc.relationship-20,0,100);
+            npc.trust = clamp(npc.trust-15,0,100);
+            addLog(`You refused ${npc.name}'s request. They are hurt.`, 'warn');
+          }},
+          { label: `Give partial (${fmtMoney(ask*0.5)})`, cost:`Cost: ${fmtMoney(ask*0.5)}`, action: () => {
+            const half = ask*0.5;
+            if(G.cash >= half) {
+              G.cash -= half;
+              npc.relationship = clamp(npc.relationship+5,0,100);
+            }
+            addLog(`You gave ${fmtMoney(half)} to ${npc.name}. Better than nothing.`, 'info');
+          }},
+        ]
+      });
+    }
+
+    // Divorce demand (spouse, low relationship + low trust)
+    if(npc.relation === 'Spouse' && npc.relationship < 20 && npc.trust < 15 && !npc._divorcePending) {
+      npc._divorcePending = true;
+      queueDialog({
+        title: `⚖️ Divorce Proceedings`,
+        sub: `Spouse · ${npc.name}`,
+        body: `<b>${npc.name}</b> confronts you: "This marriage is over. I'm consulting a lawyer." Without a prenuptial agreement, they are entitled to <b>50% of all marital assets</b>.`,
+        choices: [
+          { label: `Agree to Divorce`, action: () => {
+            const split = G.hasPrenup ? 0 : G.netWorth * 0.5;
+            G.cash -= split;
+            addLog(`Divorced ${npc.name}. Lost ${fmtMoney(split)} in settlement. Credit score -30.`, 'danger');
+            updateCreditScore(-30);
+            modStat('sanity', -15);
+            modStress(25);
+            G.npcs = G.npcs.filter(n=>n.id!==npc.id);
+          }},
+          { label: `Hire Divorce Lawyer ($8,000)`, cost:'$8,000', action: () => {
+            if(G.cash >= 8000) {
+              G.cash -= 8000;
+              const split = G.hasPrenup ? 0 : G.netWorth * 0.3; // better outcome
+              G.cash -= split;
+              addLog(`Lawyer negotiated settlement. Lost ${fmtMoney(split)}. Still costly.`, 'warn');
+              G.npcs = G.npcs.filter(n=>n.id!==npc.id);
+            } else {
+              addLog(`Can't afford a lawyer. Forced into unfavorable settlement.`, 'danger');
+              const split = G.netWorth * 0.55;
+              G.cash -= split;
+              G.npcs = G.npcs.filter(n=>n.id!==npc.id);
+            }
+          }},
+          { label: `Try to Reconcile`, action: () => {
+            npc._divorcePending = false;
+            npc.relationship += 10;
+            addLog(`You agreed to couples therapy. Things might improve.`, 'info');
+          }},
+        ]
+      });
+    }
+  });
+}
+
+// ============================================================
+// YEARLY EVENTS (each Q1)
+// ============================================================
+function processYearlyEvents() {
+  // Salary raise or review
+  if(G.salary > 0) {
+    const perf = G.jobPerformance;
+    if(perf > 70) {
+      const raise = G.salary * rngFloat(0.02, 0.05);
+      G.salary += raise;
+      addLog(`📈 Annual review: <b>Excellent</b>! Salary raised by ${fmtMoney(raise)}.`, 'success');
+    } else if(perf < 30) {
+      const cut = G.salary * 0.05;
+      G.salary -= cut;
+      modStat('reputation', -5);
+      addLog(`📉 Poor annual review. Salary cut by ${fmtMoney(cut)}.`, 'danger');
+    } else {
+      const cola = G.salary * G.inflationRate;
+      G.salary += cola;
+      addLog(`Annual review: Standard. Cost-of-living adjustment: +${fmtMoney(cola)}.`, 'info');
+    }
+    // Economy recession: potential layoff
+    if(G.economy === 'recession' && Math.random() < 0.10) {
+      addLog(`🏭 <b>LAYOFF!</b> The recession claims your job at <b>${getJobTitle()}</b>.`, 'danger');
+      G.job = 'none'; G.salary = 0;
+      modStress(30);
+      modStat('reputation', -10);
+    }
+    // Performance drift
+    G.jobPerformance = clamp(G.jobPerformance + rng(10) - 5, 0, 100);
+  }
+
+  // Economy state: random walk
+  const r = Math.random();
+  if(G.economy === 'normal') {
+    if(r < 0.10) { G.economy = 'recession'; addLog(`📉 <b>Economic Recession</b> declared. Salaries cut 30%, layoffs imminent.`, 'danger'); }
+    else if(r > 0.85) { G.economy = 'boom'; addLog(`📈 <b>Economic Boom!</b> Markets surge. Great time to invest.`, 'success'); }
+  } else if(G.economy === 'recession') {
+    if(r < 0.30) { G.economy = 'normal'; addLog(`📊 Economy recovering from recession.`, 'info'); }
+  } else if(G.economy === 'boom') {
+    if(r < 0.25) { G.economy = 'normal'; addLog(`📊 Economic boom settling down.`, 'info'); }
+    else if(r < 0.30) { G.economy = 'recession'; addLog(`📉 Boom turned to <b>bust</b>! Recession begins.`, 'danger'); }
+  }
+
+  // Inflation rate fluctuation
+  G.inflationRate = clamp(G.inflationRate + rngFloat(-0.005,0.005), 0.01, 0.07);
+
+  // Pandemic (random, ~5% chance per year if not active)
+  if(!G.pandemicActive && Math.random() < 0.05) {
+    G.pandemicActive = true;
+    G.pandemicQuarters = 8 + rng(8);
+    addLog(`🦠 <b>GLOBAL PANDEMIC</b> declared! Health authorities overwhelmed. Quarantine measures in effect.`, 'danger');
+  }
+  if(G.pandemicActive) {
+    G.pandemicQuarters--;
+    if(G.pandemicQuarters <= 0) {
+      G.pandemicActive = false;
+      addLog(`🏥 Pandemic declared over. Life slowly returns to normal.`, 'success');
+    }
+  }
+
+  // War (random ~3% per year)
+  if(!G.warActive && Math.random() < 0.03) {
+    G.warActive = true;
+    addLog(`⚔️ <b>ARMED CONFLICT</b> erupts. Markets volatile. Inflation spikes.`, 'danger');
+    G.inflationRate = Math.min(G.inflationRate + 0.02, 0.10);
+  } else if(G.warActive && Math.random() < 0.20) {
+    G.warActive = false;
+    addLog(`🕊️ Ceasefire declared. War has ended.`, 'info');
+  }
+}
+
+// ============================================================
+// RANDOM EVENTS EACH QUARTER
+// ============================================================
+function triggerRandomEvents() {
+  const age = G.age;
+  const luck = hasTrait('lucky') ? 1.25 : (hasTrait('unlucky') ? 0.75 : 1.0);
+  const r = Math.random() * luck;
+
+  // Age-gated event pools
+  if(age >= 16) {
+    // Accident (car, work)
+    if(Math.random() < 0.03) {
+      const cost = rng(15000) + 2000;
+      addLog(`🚗 <b>Accident!</b> You were involved in an incident. Medical/repair costs: ${fmtMoney(cost)}.`, 'danger');
+      G.cash -= cost;
+      modStat('health', -rng(20)-5);
+      modStat('stamina', -10);
+    }
+  }
+
+  // Health crisis (immune-based probability)
+  const sicknessChance = (100 - G.immune) * 0.002 * (G.stress > 70 ? 1.5 : 1) * (G.age > 50 ? 1.5 : 1);
+  if(Math.random() < sicknessChance && G.diseases.length < 2) {
+    // Choose disease weighted by age
+    let pool;
+    if(age < 30) pool = ['flu', 'anxiety_d'];
+    else if(age < 50) pool = ['flu', 'anxiety_d', 'depression', 'diabetes'];
+    else pool = ['flu', 'diabetes', 'depression', 'heart', 'cancer', 'anxiety_d'];
+    const diseaseId = pool[rng(pool.length)];
+    const def = DISEASES.find(d=>d.id===diseaseId);
+    if(def && !G.diseases.find(d=>d.id===diseaseId)) {
+      G.diseases.push({ id:diseaseId, remaining:def.duration });
+      addLog(`🏥 Diagnosed with <b>${def.name}</b>! Medical cost: ~${fmtMoney(def.cost)}. ${def.effect}`, 'danger');
+      if(def.id === 'heart') modStat('health', -30); // immediate
+    }
+  }
+
+  // Windfall (inheritance, lottery small win)
+  if(Math.random() * luck < 0.015) {
+    const amt = rng(10000) + 1000;
+    addLog(`🎉 <b>Windfall!</b> Unexpected money arrives: <b>${fmtMoney(amt)}</b>.`, 'success');
+    G.cash += amt;
+    modStress(-5);
+  }
+
+  // Crime victim (robbery)
+  if(Math.random() < 0.02 && G.reputation < 50) {
+    const stolen = Math.min(G.cash * 0.1, rng(3000)+500);
+    if(stolen > 0) {
+      G.cash -= stolen;
+      addLog(`🔫 <b>Robbed!</b> You lost ${fmtMoney(stolen)}.`, 'danger');
+      modStat('sanity', -8);
+    }
+  }
+
+  // Office politics event (if employed)
+  if(G.job !== 'none' && G.salary > 0 && Math.random() < 0.15) {
+    const events = [
+      { msg: 'A colleague stole credit for your project. Performance score -10.', perf:-10, stress:10 },
+      { msg: 'Your boss praised your work in front of management. Performance +15.', perf:15, stress:-5 },
+      { msg: 'You were asked to work weekends without extra pay.', perf:5, stress:20 },
+      { msg: 'Internal politics: a rival undermined your proposal. -10 Reputation.', perf:-5, rep:-10, stress:15 },
+      { msg: 'HR issued a warning for a minor policy violation.', perf:-15, stress:20 },
+    ];
+    const e = events[rng(events.length)];
+    addLog(`🏢 Office Event: ${e.msg}`, 'warn');
+    G.jobPerformance = clamp(G.jobPerformance + (e.perf||0), 0, 100);
+    modStress(e.stress||0);
+    if(e.rep) modStat('reputation', e.rep);
+  }
+}
+
+// ============================================================
+// NET WORTH CALCULATION
+// ============================================================
+function recalcNetWorth() {
+  let nw = G.cash;
+  // Property value
+  G.properties.forEach(p => nw += p.value);
+  // Investment value
+  ASSETS.forEach(a => {
+    nw += G.portfolio[a.id] * G.assetPrices[a.id];
+  });
+  // Minus debts
+  G.debts.forEach(d => nw -= d.amount);
+  // Company value (rough)
+  if(G.company) nw += G.company.capital * 0.5;
+  G.netWorth = nw;
+  if(nw > G.history.peakNetWorth) G.history.peakNetWorth = nw;
+}
+
+// ============================================================
+// GAME OVER
+// ============================================================
+function checkGameOver() {
+  if(G.health <= 0) {
+    if(G.age < 30) gameOver('Died young from catastrophic health failure.');
+    else if(G.age < 60) gameOver(`Died at age ${G.age} from deteriorating health.`);
+    else gameOver(`Passed away at age ${G.age} — lived a full life.`);
+    return;
+  }
+  if(G.sanity <= 0) {
+    gameOver('Lost all grip on reality. Committed to a psychiatric institution and never recovered.');
+    return;
+  }
+  if(G.age >= 95) {
+    gameOver(`Passed away peacefully at the remarkable age of ${G.age}.`);
+    return;
+  }
+}
+
+function gameOver(cause) {
+  G.history.causeDeath = cause;
+  document.getElementById('go-cause').textContent = cause;
+  const ach = G.history.achievements;
+  let statsHtml = `
+    <div class="go-stat-row"><span>Name</span><span>${G.name}</span></div>
+    <div class="go-stat-row"><span>Age at Death</span><span>${G.age} years</span></div>
+    <div class="go-stat-row"><span>Peak Net Worth</span><span>${fmtMoney(G.history.peakNetWorth)}</span></div>
+    <div class="go-stat-row"><span>Final Cash</span><span>${fmtMoney(G.cash)}</span></div>
+    <div class="go-stat-row"><span>Education</span><span>${['None','High School','Bachelor\'s','Master\'s'][G.education]}</span></div>
+    <div class="go-stat-row"><span>Quarters Lived</span><span>${G.history.quartersLived}</span></div>
+    <div class="go-stat-row"><span>Cause of Death</span><span style="color:var(--red)">${cause}</span></div>
+  `;
+  document.getElementById('go-stats').innerHTML = statsHtml;
+  document.getElementById('gameover').classList.add('active');
+}
+
+// ============================================================
+// DIALOG SYSTEM
+// ============================================================
+function queueDialog(dlg) {
+  dialogQueue.push(dlg);
+}
+
+function processDialogQueue() {
+  if(dialogQueue.length === 0 || dialogActive) return;
+  const dlg = dialogQueue.shift();
+  showDialog(dlg);
+}
+
+function showDialog(dlg) {
+  dialogActive = true;
+  document.getElementById('dlg-title').textContent = dlg.title;
+  document.getElementById('dlg-sub').textContent = dlg.sub||'';
+  document.getElementById('dlg-body').innerHTML = dlg.body||'';
+  const choicesEl = document.getElementById('dlg-choices');
+  choicesEl.innerHTML = '';
+  dlg.choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'dialog-choice';
+    btn.innerHTML = `<div>${c.label}</div>${c.cost?`<div class="dialog-choice-cost">${c.cost}</div>`:''}`;
+    btn.onclick = () => {
+      closeDialog();
+      if(c.action) c.action();
+      renderAll();
+      setTimeout(processDialogQueue, 300);
+    };
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('dialog-overlay').classList.add('active');
+}
+
+function closeDialog() {
+  dialogActive = false;
+  document.getElementById('dialog-overlay').classList.remove('active');
+}
+
+// ============================================================
+// ACTIVITIES — Actions the player can take
+// ============================================================
+function getActivities() {
+  const age = G.age;
+  const stage = getLifeStage();
+  const acts = [];
+
+  if(G.inPrison) {
+    // Limited prison activities
+    acts.push({ id:'prison_study', name:'Study in Prison', desc:'Use prison library to improve smarts', apCost:30, moneyCost:0, available:G.ap>=30, action:() => {
+      useAP(30); modStat('smarts', 5+rng(5)); addLog(`You studied diligently in prison. Smarts +5.`, 'success');
+    }});
+    acts.push({ id:'prison_exercise', name:'Prison Yard Exercise', desc:'Stay fit to survive', apCost:20, moneyCost:0, available:G.ap>=20, action:() => {
+      useAP(20); modStat('stamina', 5); modStat('health', 3); addLog(`You exercised in the prison yard. Stamina +5.`, 'success');
+    }});
+    acts.push({ id:'prison_gang', name:'Join Prison Gang', desc:'Protection but increases criminal ties', apCost:10, moneyCost:0, available:G.ap>=10, action:() => {
+      useAP(10); modStat('reputation', -10); G.criminalRecord++; modStat('health', 3);
+      addLog(`You joined a gang inside. Protection secured but reputation suffers.`, 'warn');
+    }});
+    return acts;
+  }
+
+  // === HEALTH & FITNESS ===
+  acts.push({ id:'gym', name:'Hit the Gym', desc:'Improve stamina & appearance', apCost:20, moneyCost:50*G.inflation, available:G.ap>=20 && G.cash>=50*G.inflation, action:() => {
+    const cost = 50*G.inflation;
+    useAP(20); G.cash -= cost;
+    const gain = hasTrait('iron_gut') ? 8 : 5;
+    modStat('stamina', gain); modStat('health', 3); modStat('appearance', 3);
+    modStress(-5);
+    addLog(`You hit the gym. Stamina +${gain}, Health +3, Stress -5.`, 'success');
+  }});
+  acts.push({ id:'meditate', name:'Meditate / Rest', desc:'Recover sanity and reduce stress', apCost:15, moneyCost:0, available:G.ap>=15, action:() => {
+    useAP(15);
+    modStat('sanity', 10); modStress(-15); modStat('focus', 8);
+    addLog(`You spent time meditating. Sanity +10, Stress -15, Focus +8.`, 'success');
+  }});
+  acts.push({ id:'doctor', name:'See a Doctor', desc:'Improve immune & health check', apCost:20, moneyCost:300*G.inflation, available:G.ap>=20 && G.cash>=200, action:() => {
+    const cost = 300*G.inflation;
+    useAP(20); G.cash -= cost;
+    modStat('immune', 15); modStat('health', 10);
+    addLog(`Doctor visit: ${fmtMoney(cost)}. Immune +15, Health +10.`, 'success');
+  }});
+  acts.push({ id:'therapy', name:'Therapy Session', desc:'Reduce stress, improve sanity', apCost:20, moneyCost:200*G.inflation, available:G.ap>=20 && G.cash>=150, action:() => {
+    const cost = 200*G.inflation;
+    useAP(20); G.cash -= cost;
+    modStat('sanity', 15); modStress(-20);
+    addLog(`Therapy session: ${fmtMoney(cost)}. Sanity +15, Stress -20.`, 'success');
+  }});
+
+  // === EDUCATION (age gated) ===
+  if(age >= 5 && age < 18) {
+    acts.push({ id:'study_child', name:'Do Homework / Study', desc:'Build smarts early', apCost:hasTrait('genius')?10:20, moneyCost:0, available:G.ap>=(hasTrait('genius')?10:20), action:() => {
+      const cost = hasTrait('genius')?10:20;
+      useAP(cost); modStat('smarts', hasTrait('genius')?8:5); modStat('focus', 3);
+      addLog(`You studied hard. Smarts ${hasTrait('genius')?'+8':'+5'}.`, 'success');
+    }});
+  }
+  if(age >= 18 && !G.inSchool && G.education < 2) {
+    acts.push({ id:'enroll_bachelor', name:'Enroll: Bachelor\'s Degree', desc:'4 years. +Smarts, unlock better jobs. Costs $5K/qtr', apCost:10, moneyCost:1000, available:G.ap>=10 && G.smarts>=30, action:() => {
+      useAP(10); G.cash -= 1000;
+      G.inSchool = true; G.schoolType = 'bachelor'; G.gpa = 60; G.schoolStartQtr = G.totalQuarters;
+      addLog(`📚 Enrolled in university for a Bachelor's Degree. 4 years (16 quarters) of hard work ahead.`, 'info');
+    }});
+  }
+  if(age >= 22 && !G.inSchool && G.education === 2) {
+    acts.push({ id:'enroll_master', name:'Enroll: Master\'s Degree', desc:'2 years. Higher salary ceiling', apCost:10, moneyCost:2000, available:G.ap>=10 && G.smarts>=50, action:() => {
+      useAP(10); G.cash -= 2000;
+      G.inSchool = true; G.schoolType = 'master'; G.gpa = 60; G.schoolStartQtr = G.totalQuarters;
+      addLog(`📚 Enrolled in graduate school for a Master's Degree.`, 'info');
+    }});
+  }
+  if(G.inSchool) {
+    acts.push({ id:'study_hard', name:'Study Hard (School)', desc:`Boost GPA. Current: ${G.gpa.toFixed(0)}/100`, apCost:hasTrait('genius')?15:30, moneyCost:0, available:G.ap>=(hasTrait('genius')?15:30), action:() => {
+      const cost = hasTrait('genius')?15:30;
+      useAP(cost); const gain = 5+rng(10)*(G.smarts/100); G.gpa = clamp(G.gpa+gain, 0, 100);
+      modStat('smarts', 3); modStress(8);
+      addLog(`Intense study session. GPA +${gain.toFixed(0)}, Smarts +3.`, 'success');
+    }});
+    acts.push({ id:'drop_out', name:'Drop Out of School', desc:'Stop studying; save money but lose degree', apCost:5, moneyCost:0, available:true, action:() => {
+      useAP(5); G.inSchool = false; G.schoolType = null;
+      addLog(`You dropped out of school. The debt remains but you're free.`, 'warn');
+    }});
+  }
+
+  // === SELF-IMPROVEMENT ===
+  acts.push({ id:'read', name:'Read Books / Learn Online', desc:'Boost smarts', apCost:hasTrait('genius')?10:20, moneyCost:20, available:G.ap>=(hasTrait('genius')?10:20) && G.cash>=20, action:() => {
+    const cost = hasTrait('genius')?10:20;
+    useAP(cost); G.cash -= 20;
+    modStat('smarts', hasTrait('genius')?6:4); modStat('focus', 3);
+    addLog(`You read and self-studied. Smarts +${hasTrait('genius')?6:4}.`, 'success');
+  }});
+  acts.push({ id:'social', name:'Socialize / Network', desc:'Boost charisma & reputation', apCost:hasTrait('charismatic')?10:20, moneyCost:100*G.inflation, available:G.ap>=15 && G.cash>=80, action:() => {
+    const apCost = hasTrait('charismatic')?10:20;
+    const mCost = 100*G.inflation;
+    useAP(apCost); G.cash -= mCost;
+    modStat('charisma', hasTrait('charismatic')?8:5); modStat('reputation', 3); modStress(-8);
+    addLog(`You went out and networked. Charisma +${hasTrait('charismatic')?8:5}, Stress -8.`, 'success');
+  }});
+
+  // === WORK / CAREER ===
+  if(age >= 16 && G.job === 'none') {
+    acts.push({ id:'find_job', name:'Apply for Jobs', desc:'Look for employment matching your skills', apCost:30, moneyCost:0, available:G.ap>=30, action:findJob });
+  }
+  if(G.salary > 0) {
+    acts.push({ id:'work_hard', name:'Work Extra Hard', desc:'Boost job performance', apCost:30, moneyCost:0, available:G.ap>=30, action:() => {
+      useAP(30); G.jobPerformance = clamp(G.jobPerformance+10+rng(10), 0, 100); modStress(10);
+      addLog(`You put in extra hours at work. Performance +10, Stress +10.`, 'success');
+    }});
+    acts.push({ id:'schmooze', name:'Office Politics: Schmooze Boss', desc:'+Performance, -Karma, high stress', apCost:20, moneyCost:0, available:G.ap>=20, action:() => {
+      useAP(20); G.jobPerformance = clamp(G.jobPerformance+15, 0, 100); modStat('karma', -5); modStress(15);
+      addLog(`You played office politics and schmoozed your boss. Performance boost, karma hit.`, 'warn');
+    }});
+    acts.push({ id:'quit_job', name:'Quit Current Job', desc:`Quit: ${getJobTitle()}`, apCost:5, moneyCost:0, available:true, action:() => {
+      addLog(`You quit your job as ${getJobTitle()}.`, 'warn');
+      G.job = 'none'; G.salary = 0; G.jobPerformance = 50; G.jobQuartersHeld = 0;
+    }});
+    // Promotion check
+    if(G.jobPerformance > 75 && G.jobQuartersHeld >= 8) {
+      acts.push({ id:'seek_promotion', name:'Seek Promotion', desc:'Push for higher position', apCost:20, moneyCost:0, available:G.ap>=20, action:seekPromotion });
+    }
+  }
+
+  // === GIG ECONOMY (age 16+, unemployed or supplemental)===
+  if(age >= 16) {
+    acts.push({ id:'gig_work', name:'Gig Work / Freelance', desc:'Quick cash, high stress. +$500-2000', apCost:40, moneyCost:0, available:G.ap>=40, action:() => {
+      useAP(40);
+      const earnings = 500 + rng(1500) * (G.smarts/100 + 0.5);
+      G.cash += earnings; modStress(20);
+      addLog(`Freelance gig completed. Earned ${fmtMoney(earnings)}. Stress +20.`, 'success');
+    }});
+  }
+
+  // === ENTREPRENEURSHIP (age 21+) ===
+  if(age >= 21 && !G.company) {
+    acts.push({ id:'start_biz', name:'Start a Business', desc:'$20K capital needed. High risk, high reward', apCost:40, moneyCost:20000, available:G.ap>=40 && G.cash>=20000, action:startBusiness });
+  }
+
+  // === INVESTMENTS ===
+  if(age >= 18) {
+    acts.push({ id:'open_invest', name:'Open Market Terminal', desc:'Go to Market tab to buy/sell', apCost:0, moneyCost:0, available:true, action:() => { switchTab('invest'); } });
+  }
+
+  // === PROPERTY ===
+  if(age >= 22 && G.cash >= 50000 && G.creditScore >= 580) {
+    acts.push({ id:'buy_home', name:'Buy a Home', desc:'$300K property. Mortgage at 7% APR', apCost:20, moneyCost:30000, available:G.ap>=20 && G.cash>=30000 && G.properties.length===0, action:buyHome });
+  }
+
+  // === SOCIAL / RELATIONSHIPS ===
+  if(age >= 18 && !G.npcs.find(n=>n.relation==='Partner'||n.relation==='Spouse')) {
+    acts.push({ id:'dating', name:'Start Dating', desc:'Meet a potential partner', apCost:20, moneyCost:200*G.inflation, available:G.ap>=20 && G.cash>=150, action:startDating });
+  }
+  if(G.npcs.find(n=>n.relation==='Partner') && age >= 20) {
+    acts.push({ id:'propose', name:'Propose Marriage', desc:'Turn Partner into Spouse (requires ring $5K)', apCost:10, moneyCost:5000, available:G.ap>=10 && G.cash>=5000, action:proposeMarriage });
+    acts.push({ id:'prenup', name:'Sign Prenuptial Agreement', desc:'Protect assets in case of divorce: $3K lawyer fee', apCost:5, moneyCost:3000, available:G.ap>=5 && G.cash>=3000 && !G.hasPrenup, action:() => {
+      useAP(5); G.cash -= 3000; G.hasPrenup = true;
+      addLog(`Prenuptial agreement signed. Your assets are protected in case of divorce.`, 'success');
+    }});
+  }
+  if(G.npcs.find(n=>n.relation==='Spouse') && age >= 22 && age < 50) {
+    acts.push({ id:'have_child', name:'Have a Child', desc:'Life-changing. +expenses, +happiness (maybe)', apCost:20, moneyCost:5000, available:G.ap>=20 && G.cash>=5000 && !G.npcs.find(n=>n.relation==='Child'), action:haveChild });
+  }
+
+  // === CRIMINAL ACTIVITIES (karma-based unlocks) ===
+  if(age >= 16 && !G.inPrison) {
+    acts.push({ id:'crime_petty', name:'Petty Theft', desc:'Low risk, low reward. Karma -5', apCost:15, moneyCost:0, available:G.ap>=15, action:() => commitCrime('petty') });
+    if(G.smarts >= 40) {
+      acts.push({ id:'crime_fraud', name:'Financial Fraud / Scam', desc:'High reward, high risk. Requires Smarts 40+', apCost:40, moneyCost:0, available:G.ap>=40, action:() => commitCrime('fraud') });
+    }
+    if(G.job !== 'none' && G.salary > 40000) {
+      acts.push({ id:'crime_corp', name:'Corporate Embezzlement', desc:'High reward if caught later. Karma -20', apCost:30, moneyCost:0, available:G.ap>=30, action:() => commitCrime('corporate') });
+    }
+  }
+
+  // === ENTERTAINMENT ===
+  acts.push({ id:'entertainment', name:'Entertainment / Vacation', desc:'Recharge. Stress -25, Sanity +10', apCost:25, moneyCost:500*G.inflation, available:G.ap>=25 && G.cash>=300, action:() => {
+    const cost = 500*G.inflation;
+    useAP(25); G.cash -= cost;
+    modStress(-25); modStat('sanity', 10); modStat('health', 3);
+    addLog(`You took a well-deserved break. Stress -25, Sanity +10.`, 'success');
+  }});
+
+  // === LOANS / FINANCE ===
+  if(age >= 18 && G.creditScore >= 580) {
+    acts.push({ id:'take_loan', name:'Personal Loan ($10K)', desc:`Credit score: ${G.creditScore}. Rate: ${loanRate().toFixed(1)}%`, apCost:10, moneyCost:0, available:G.ap>=10 && G.creditScore>=500, action:takeLoan });
+  }
+
+  return acts;
+}
+
+function useAP(amount) {
+  G.ap = clamp(G.ap - amount, 0, G.maxAP);
+}
+
+function getJobTitle() {
+  const job = JOBS.find(j=>j.id===G.job);
+  return job ? job.title : 'Unemployed';
+}
+
+function loanRate() {
+  // Inverse relationship with credit score
+  if(G.creditScore >= 750) return 6;
+  if(G.creditScore >= 700) return 8;
+  if(G.creditScore >= 650) return 11;
+  if(G.creditScore >= 600) return 15;
+  return 22; // bad credit
+}
+
+function addDebt(name, amount, rate, minPayment) {
+  G.debts.push({ id: Math.random().toString(36).slice(2), name, amount, rate, minPayment });
+}
+
+function takeLoan() {
+  useAP(10);
+  const rate = loanRate() / 100;
+  const amount = 10000;
+  G.cash += amount;
+  addDebt('Personal Loan', amount, rate, 300);
+  addLog(`Took personal loan of $10,000 at ${(rate*100).toFixed(0)}% APR. Monthly minimum: $300.`, 'warn');
+}
+
+function findJob() {
+  useAP(30);
+  // Find best eligible job
+  const eligibleJobs = JOBS.filter(j =>
+    j.id !== 'none' &&
+    G.age >= j.minAge &&
+    G.smarts >= j.minSmarts &&
+    G.education >= j.minEdu
+  ).sort((a,b) => b.baseSalary - a.baseSalary);
+
+  if(eligibleJobs.length === 0) {
+    addLog(`No eligible jobs found. Improve your education and skills.`, 'warn');
+    return;
+  }
+  const bestJob = eligibleJobs[0];
+  const salaryVariance = rngFloat(0.9, 1.1);
+  const charismaBonus = (G.charisma / 100) * 0.1;
+  const traitBonus = hasTrait('hustler') ? 0.1 : 0;
+  G.job = bestJob.id;
+  G.salary = bestJob.baseSalary * salaryVariance * (1 + charismaBonus + traitBonus);
+  G.jobPerformance = 50;
+  G.jobQuartersHeld = 0;
+  addLog(`🎉 Got a job as <b>${bestJob.title}</b>! Annual salary: <b>${fmtMoney(G.salary)}</b>.`, 'success');
+  modStat('reputation', 10);
+}
+
+function seekPromotion() {
+  useAP(20);
+  const chance = G.jobPerformance/100 * (G.charisma/100 * 0.5 + 0.5);
+  if(Math.random() < chance) {
+    const raise = G.salary * rngFloat(0.15, 0.30);
+    G.salary += raise;
+    G.jobPerformance = 50; // Reset after promotion
+    G.jobQuartersHeld = 0;
+    addLog(`🎊 <b>Promoted!</b> Salary increase: ${fmtMoney(raise)}. New salary: ${fmtMoney(G.salary)}.`, 'success');
+    modStat('reputation', 15);
+    modStress(10);
+  } else {
+    addLog(`Promotion denied. Keep building performance and try again.`, 'warn');
+    modStress(15);
+  }
+}
+
+function startBusiness() {
+  useAP(40);
+  G.cash -= 20000;
+  G.company = {
+    name: `${G.name}'s Ventures`,
+    capital: 20000,
+    employees: 2,
+    employeeSalary: 5000, // per employee per quarter
+    marketing: 2000, // quarterly
+    price: 299, // product price
+    revenue: 0,
+    profit: 0,
+    cashflowNeg: 0,
+  };
+  addLog(`🏢 <b>${G.company.name}</b> founded! Invested $20,000 capital. Manage from the Business panel.`, 'success');
+  modStat('reputation', 10);
+}
+
+function buyHome() {
+  useAP(20);
+  const downPayment = 30000;
+  const homeValue = 300000;
+  const loanAmt = homeValue - downPayment;
+  const rate = loanRate() / 100;
+  const quarterlyPayment = loanAmt * (rate/4) / (1 - Math.pow(1+rate/4, -120)); // 30yr
+  G.cash -= downPayment;
+  G.properties.push({
+    id: Math.random().toString(36).slice(2),
+    name: 'Primary Residence',
+    value: homeValue,
+    mortgage: quarterlyPayment,
+    type: 'residence',
+  });
+  addDebt('Home Mortgage (30yr)', loanAmt, rate, quarterlyPayment);
+  addLog(`🏠 Purchased a home! Down payment: $30,000. Mortgage: ${fmtMoney(quarterlyPayment)}/qtr at ${(rate*100).toFixed(0)}% APR.`, 'success');
+}
+
+function startDating() {
+  useAP(20); G.cash -= 200*G.inflation;
+  const partnerNames = ['Sam','Chris','Robin','Lee','Avery','Blake'];
+  const name = partnerNames[rng(partnerNames.length)];
+  G.npcs.push(createNPC(name, 'Partner', '💑', G.age + rng(10) - 5));
+  addLog(`❤️ You started dating <b>${name}</b>! New relationship begins.`, 'success');
+}
+
+function proposeMarriage() {
+  useAP(10); G.cash -= 5000;
+  const partner = G.npcs.find(n=>n.relation==='Partner');
+  if(!partner) return;
+  const chance = (partner.relationship + partner.trust) / 200;
+  if(Math.random() < chance) {
+    partner.relation = 'Spouse';
+    partner.dependency = 40;
+    addLog(`💍 <b>${partner.name}</b> said YES! You are now married.`, 'success');
+    modStat('sanity', 10); modStress(-10);
+    if(!G.hasPrenup) addLog(`⚠️ No prenuptial agreement signed. In case of divorce, 50% of assets at risk.`, 'warn');
+  } else {
+    addLog(`💔 <b>${partner.name}</b> said no. It's not the right time.`, 'danger');
+    modStat('sanity', -10); modStress(15);
+  }
+}
+
+function haveChild() {
+  useAP(20); G.cash -= 5000;
+  const childName = ['Zoe','Eli','Mia','Noah','Emma','Liam'][rng(6)];
+  G.npcs.push(createNPC(childName, 'Child', '👶', 0));
+  addLog(`👶 <b>${childName}</b> is born! A new chapter of your life begins. +$5K initial costs.`, 'success');
+  modStat('sanity', 10); modStress(20);
+}
+
+// Criminal system with detection probability
+function commitCrime(type) {
+  const crimes = {
+    petty: { name:'Petty Theft', reward: [200,800], ap:15, detectBase:0.15, jailQtrs:2, karma:-5, repHit:-5 },
+    fraud: { name:'Financial Fraud', reward:[3000,15000], ap:40, detectBase:0.25, jailQtrs:6, karma:-15, repHit:-20 },
+    corporate: { name:'Corporate Embezzlement', reward:[10000,80000], ap:30, detectBase:0.20, jailQtrs:8, karma:-20, repHit:-30 },
+  };
+  const c = crimes[type];
+  if(!c) return;
+  useAP(c.ap);
+  G.karma = clamp(G.karma + c.karma, 0, 100);
+  // Detection probability: inversely proportional to smarts
+  const detectChance = c.detectBase * (1 - G.smarts/200) * (hasTrait('unlucky') ? 1.3 : 1);
+  if(Math.random() < detectChance) {
+    // CAUGHT
+    G.criminalRecord++;
+    G.arrested = true;
+    addLog(`🚨 <b>CAUGHT!</b> Arrested for ${c.name}. Criminal record: ${G.criminalRecord}.`, 'danger');
+    updateCreditScore(-60);
+    modStat('reputation', c.repHit * 2);
+    queueDialog({
+      title: `⚖️ Court Hearing — ${c.name}`,
+      sub: `Criminal Record: ${G.criminalRecord}`,
+      body: `You have been charged with <b>${c.name}</b>. How do you plead and proceed?`,
+      choices: [
+        { label:'Hire Expensive Lawyer ($15,000)', cost:'$15,000', action:() => {
+          if(G.cash >= 15000) {
+            G.cash -= 15000;
+            const jailTime = Math.max(1, Math.floor(c.jailQtrs * 0.3));
+            G.inPrison = true; G.prisonQuarters = jailTime;
+            addLog(`Lawyer negotiated reduced sentence: <b>${jailTime} quarters</b> in prison.`, 'warn');
+          } else {
+            addLog(`Can't afford it. Public defender assigned.`, 'danger');
+            G.inPrison = true; G.prisonQuarters = c.jailQtrs;
+          }
+        }},
+        { label:'Public Defender (Free)', cost:'Higher sentence risk', action:() => {
+          G.inPrison = true;
+          G.prisonQuarters = c.jailQtrs + rng(4);
+          addLog(`Public defender failed to reduce sentence. <b>${G.prisonQuarters} quarters</b> in prison.`, 'danger');
+        }},
+        { label:'Flee the Country ($20,000)', cost:'$20,000 + stats hit', action:() => {
+          if(G.cash >= 20000) {
+            G.cash -= 20000;
+            modStat('reputation', -40);
+            addLog(`You fled the country. Warrant out for your arrest. Reputation destroyed.`, 'danger');
+          } else {
+            addLog(`Can't afford to flee. Sentenced anyway.`, 'danger');
+            G.inPrison = true; G.prisonQuarters = c.jailQtrs;
+          }
+        }},
+      ]
+    });
+  } else {
+    // GOT AWAY
+    const reward = rng(c.reward[1]-c.reward[0]) + c.reward[0];
+    G.cash += reward;
+    modStat('reputation', c.repHit);
+    addLog(`Got away with ${c.name}. Gained <b>${fmtMoney(reward)}</b>. But karma strikes back eventually.`, 'warn');
+  }
+}
+
+// ============================================================
+// MARKET OPERATIONS (buy/sell)
+// ============================================================
+function buyAsset(assetId, qty=1) {
+  if(G.ap < 10) { addLog('Not enough AP to trade.', 'warn'); return; }
+  const price = G.assetPrices[assetId];
+  const total = price * qty;
+  if(G.cash < total) { addLog(`Insufficient cash. Need ${fmtMoney(total)}.`, 'warn'); return; }
+  useAP(10);
+  G.cash -= total;
+  G.portfolio[assetId] = (G.portfolio[assetId]||0) + qty;
+  const asset = ASSETS.find(a=>a.id===assetId);
+  addLog(`📈 Bought ${qty}x <b>${asset.name}</b> @ ${fmtMoney(price)} each. Total: ${fmtMoney(total)}.`, 'success');
   renderAll();
 }
 
-function applyForPromotion(levelIdx) {
-  const level = CAREER_LEVELS[levelIdx];
-  const nw = calcNetWorth();
-  if(nw < level.netWorthReq) { addLog(`⚠️ Need net worth of $${fmt(level.netWorthReq)} for this role`, 'warn'); return; }
-  if(gameState.creditScore < level.creditReq) { addLog(`⚠️ Need credit score of ${level.creditReq} for this role`, 'warn'); return; }
-  gameState.careerIndex = levelIdx;
-  gameState.salary = level.salary;
-  addLog(`🎉 CAREER CHANGE: Now a ${level.title} at $${fmt(level.salary)}/mo!`, 'gain');
+function sellAsset(assetId, qty=1) {
+  if(G.portfolio[assetId] < qty) { addLog('You don\'t own enough shares.', 'warn'); return; }
+  if(G.ap < 5) { addLog('Not enough AP to trade.', 'warn'); return; }
+  useAP(5);
+  const price = G.assetPrices[assetId];
+  const total = price * qty;
+  G.cash += total;
+  G.portfolio[assetId] -= qty;
+  const asset = ASSETS.find(a=>a.id===assetId);
+  addLog(`📉 Sold ${qty}x <b>${asset.name}</b> @ ${fmtMoney(price)} each. Received: ${fmtMoney(total)}.`, 'success');
   renderAll();
 }
 
 // ============================================================
-// RENDERING
+// RENDER SYSTEM
 // ============================================================
-
-function fmt(n) {
-  return Math.abs(n) >= 1000000 
-    ? (n/1000000).toFixed(2) + 'M'
-    : Math.abs(n) >= 1000 
-    ? n.toLocaleString('en-US', {minimumFractionDigits:0,maximumFractionDigits:0})
-    : n.toFixed(0);
-}
-
-function fmt2(n) {
-  return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-}
-
-function fmtC(n) {
-  const abs = Math.abs(n);
-  const str = abs >= 1000000 ? (abs/1000000).toFixed(2)+'M' : abs.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-  return (n < 0 ? '-$' : '$') + str;
-}
-
 function renderAll() {
   renderHeader();
-  renderSidebar();
-  renderMarkets();
-  renderRealEstate();
+  renderStatus();
+  renderActivities();
+  renderFinance();
+  renderMarket();
+  renderRelations();
   renderCareer();
+  renderSidebarRight();
+  renderTicker();
 }
 
 function renderHeader() {
-  const age = gameState.age;
-  const nw = calcNetWorth();
-  const month = `${MONTHS[gameState.month]} ${gameState.year}`;
-  
-  document.getElementById('hdrAge').textContent = age;
-  document.getElementById('hdrMonth').textContent = month;
-  document.getElementById('hdrCash').textContent = fmtC(gameState.cash);
-  document.getElementById('hdrCash').className = `font-mono font-bold text-sm font-mono ${gameState.cash < 0 ? 'neon-red' : 'neon-green'}`;
-  document.getElementById('hdrNetWorth').textContent = fmtC(nw);
-  document.getElementById('hdrNetWorth').className = `font-mono font-bold text-white text-sm ${nw < 0 ? 'neon-red' : nw >= 1000000 ? 'neon-purple' : 'text-white'}`;
-  document.getElementById('hdrTurn').textContent = gameState.turn;
-  
-  const econEl = document.getElementById('hdrEconomy');
-  econEl.textContent = `● ${gameState.economyState}`;
-  econEl.className = `badge economy-${gameState.economyState}`;
-  
-  // Goal progress
-  const goalPct = Math.max(0, Math.min(100, (nw / 2000000) * 100));
-  document.getElementById('goalProgress').style.width = goalPct + '%';
-  document.getElementById('goalPct').textContent = goalPct.toFixed(1) + '%';
+  document.getElementById('hdr-age').textContent = `${G.age} yr`;
+  document.getElementById('hdr-quarter').textContent = `Q${G.quarter}`;
+  const apEl = document.getElementById('hdr-ap');
+  apEl.textContent = `${G.ap} AP`;
+  apEl.style.color = G.ap < 30 ? 'var(--red)' : G.ap < 60 ? 'var(--yellow)' : 'var(--cyan)';
+  document.getElementById('hdr-money').textContent = fmtMoney(G.cash);
+  document.getElementById('hdr-money').style.color = G.cash < 0 ? 'var(--red)' : 'var(--green)';
+  document.getElementById('hdr-nw').textContent = fmtMoney(G.netWorth);
+  document.getElementById('hdr-nw').style.color = G.netWorth < 0 ? 'var(--red)' : 'var(--yellow)';
 }
 
-function renderSidebar() {
-  const gs = gameState;
-  const nw = calcNetWorth();
-  const totalAssets = calcTotalAssets();
-  const totalLiab = calcTotalLiabilities();
-  
-  // Income Statement
-  const sideHustleIncome = (gs.sideHustles.freelance ? 500 : 0) + 
-    (gs.sideHustles.content ? Math.min(gs.sideHustles.contentMonths*33,200) : 0) +
-    (gs.sideHustles.business ? 800 : 0);
-  const rentalIncome = gs.properties.reduce((s,p) => s+p.rentalIncome, 0);
-  const hysaIncome = Math.max(0, gs.cash) * (0.04/12);
-  const divIncome = (gs.turn % 3 === 0 && gs.stocks.divStock.shares > 0) 
-    ? gs.stocks.divStock.shares * gs.stocks.divStock.price * 0.01 : 0;
-  
-  const propCosts = gs.properties.reduce((s,p) => s + p.maintenanceCost + (p.mortgage>0?p.monthlyMortgagePayment:0), 0);
-  const insuranceCost = (gs.hasHealthInsurance?150:0) + (gs.hasPropertyInsurance?200:0);
-  const totalIn = gs.salary + sideHustleIncome + rentalIncome + hysaIncome + divIncome;
-  const totalOut = gs.livingExpenses + gs.minLoanPayment + propCosts + insuranceCost;
-  const netFlow = totalIn - totalOut;
-  
-  document.getElementById('incomeSalary').textContent = `$${fmt(gs.salary + sideHustleIncome)}`;
-  document.getElementById('incomeDivs').textContent = fmtC(divIncome);
-  document.getElementById('incomeRental').textContent = fmtC(rentalIncome);
-  document.getElementById('incomeSavings').textContent = `$${fmt2(hysaIncome)}`;
-  document.getElementById('totalIncome').textContent = fmtC(totalIn);
-  document.getElementById('expLiving').textContent = `-$${fmt(gs.livingExpenses)}`;
-  document.getElementById('expLoan').textContent = gs.studentLoanBalance > 0 ? `-$${fmt(gs.minLoanPayment)}` : '$0';
-  document.getElementById('expInsurance').textContent = `-$${fmt(insuranceCost)}`;
-  document.getElementById('expProperty').textContent = `-$${fmt(propCosts)}`;
-  document.getElementById('totalExpenses').textContent = `-$${fmt(totalOut)}`;
-  
-  const nfEl = document.getElementById('netCashFlow');
-  nfEl.textContent = fmtC(netFlow);
-  nfEl.className = `font-mono font-bold text-lg ${netFlow >= 0 ? 'neon-green' : 'neon-red'}`;
-  
-  // Balance Sheet
-  document.getElementById('bsCash').textContent = fmtC(Math.max(0, gs.cash));
-  document.getElementById('bsStocks').textContent = fmtC(calcStockValue());
-  document.getElementById('bsCrypto').textContent = fmtC(calcCryptoValue());
-  document.getElementById('bsRE').textContent = fmtC(calcREValue());
-  document.getElementById('bsTotalAssets').textContent = fmtC(totalAssets);
-  document.getElementById('bsStudentLoan').textContent = fmtC(gs.studentLoanBalance);
-  const mortgageTotal = gs.properties.reduce((s,p)=>s+p.mortgage,0);
-  document.getElementById('bsMortgage').textContent = fmtC(mortgageTotal);
-  document.getElementById('bsTotalLiab').textContent = fmtC(totalLiab);
-  const nwEl = document.getElementById('bsNetWorth');
-  nwEl.textContent = fmtC(nw);
-  nwEl.className = `font-mono font-bold text-lg ${nw >= 0 ? 'neon-green' : 'neon-red'}`;
-  
-  // Credit Score
-  const cs = gs.creditScore;
-  document.getElementById('creditScoreVal').textContent = cs;
-  document.getElementById('creditScoreBar').style.width = ((cs-300)/550*100) + '%';
-  const csLabel = cs >= 800 ? 'Exceptional' : cs >= 740 ? 'Very Good' : cs >= 670 ? 'Good' : cs >= 580 ? 'Fair' : 'Poor';
-  document.getElementById('creditScoreLabel').textContent = csLabel;
-  
-  // Inflation
-  const infPct = (gs.inflationRate * 100).toFixed(1);
-  document.getElementById('inflationVal').textContent = infPct + '%';
-  document.getElementById('inflationBar').style.width = (gs.inflationRate / 0.12 * 100) + '%';
-  
-  // Age bar
-  const agePct = ((gs.age - 22) / 43 * 100).toFixed(1);
-  document.getElementById('ageBar').style.width = agePct + '%';
-  
-  // Career
-  document.getElementById('careerLevel').textContent = CAREER_LEVELS[gs.careerIndex].title;
-  
-  // Insurance status
-  const hiS = document.getElementById('healthInsStatus');
-  hiS.textContent = gs.hasHealthInsurance ? '✓ Active' : '✗ None';
-  hiS.className = gs.hasHealthInsurance ? 'text-xs font-semibold text-green-400' : 'text-xs font-semibold text-red-400';
-  
-  // Market sentiment
-  const sentEl = document.getElementById('marketSentiment');
-  const sent = gs.marketSentiment;
-  const sentText = sent > 0.5 ? '🤑 Bullish' : sent > 0.1 ? '😊 Optimistic' : sent > -0.1 ? '😐 Neutral' : sent > -0.5 ? '😟 Pessimistic' : '😱 Bearish';
-  sentEl.textContent = sentText;
-  
-  // HYSA
-  document.getElementById('hysaCash').textContent = fmtC(Math.max(0, gs.cash));
-  document.getElementById('hysaMonthlyInt').textContent = fmtC(Math.max(0, gs.cash * 0.04/12));
-  document.getElementById('hysaTotalEarned').textContent = fmtC(gs.hysaTotalEarned);
+function statBarColor(val) {
+  if(val >= 70) return 'var(--green)';
+  if(val >= 40) return 'var(--yellow)';
+  return 'var(--red)';
 }
 
-function renderMarkets() {
-  const gs = gameState;
-  
-  // Stocks
-  const stocks = [
-    { id: 'indexFund', label: 'Index Fund' },
-    { id: 'techStock', label: 'Tech Stock' },
-    { id: 'divStock', label: 'Dividend Stock' },
-  ];
-  
-  stocks.forEach(({ id }) => {
-    const s = gs.stocks[id];
-    const prev = s.history.length >= 2 ? s.history[s.history.length - 2] : s.price;
-    const change = ((s.price - prev) / prev * 100).toFixed(2);
-    const isUp = s.price >= prev;
-    
-    document.getElementById(`price-${id}`).textContent = `$${fmt2(s.price)}`;
-    document.getElementById(`price-${id}`).className = `font-mono font-bold text-sm ${isUp ? 'neon-green' : 'neon-red'}`;
-    const changeEl = document.getElementById(`change-${id}`);
-    changeEl.textContent = `${isUp ? '+' : ''}${change}%`;
-    changeEl.className = `text-xs font-mono ${isUp ? 'neon-green' : 'neon-red'}`;
-    document.getElementById(`held-${id}`).textContent = `${s.shares} shares`;
-    document.getElementById(`value-${id}`).textContent = fmtC(s.shares * s.price);
-    
-    drawMiniChart(`chart-${id}`, s.history, isUp ? '#4ade80' : '#f87171');
-  });
-  
-  // Crypto
-  const btc = gs.crypto.bitcoin;
-  const btcPrev = btc.history.length >= 2 ? btc.history[btc.history.length-2] : btc.price;
-  const btcChange = ((btc.price - btcPrev) / btcPrev * 100).toFixed(2);
-  const btcUp = btc.price >= btcPrev;
-  document.getElementById('price-bitcoin').textContent = `$${fmt(Math.round(btc.price))}`;
-  document.getElementById('price-bitcoin').className = `font-mono font-bold neon-yellow text-sm`;
-  const btcChangeEl = document.getElementById('change-bitcoin');
-  btcChangeEl.textContent = `${btcUp ? '+' : ''}${btcChange}%`;
-  btcChangeEl.className = `text-xs font-mono ${btcUp ? 'neon-green' : 'neon-red'}`;
-  document.getElementById('held-bitcoin').textContent = `${btc.amount.toFixed(4)} BTC`;
-  document.getElementById('value-bitcoin').textContent = fmtC(btc.amount * btc.price);
-  drawMiniChart('chart-bitcoin', btc.history, '#fbbf24');
-  
-  // Portfolio summary
-  const hasPortfolio = calcStockValue() + calcCryptoValue() > 0;
-  const summaryEl = document.getElementById('portfolioSummary');
-  if(hasPortfolio) {
-    summaryEl.classList.remove('hidden');
-    const list = document.getElementById('portfolioList');
-    let html = '';
-    if(gs.stocks.indexFund.shares > 0) html += `<div class="flex justify-between"><span class="text-slate-400">Index Fund</span><span class="font-mono neon-green">${gs.stocks.indexFund.shares} shares · ${fmtC(gs.stocks.indexFund.shares * gs.stocks.indexFund.price)}</span></div>`;
-    if(gs.stocks.techStock.shares > 0) html += `<div class="flex justify-between"><span class="text-slate-400">Tech Stock</span><span class="font-mono neon-blue">${gs.stocks.techStock.shares} shares · ${fmtC(gs.stocks.techStock.shares * gs.stocks.techStock.price)}</span></div>`;
-    if(gs.stocks.divStock.shares > 0) html += `<div class="flex justify-between"><span class="text-slate-400">Div. Stock</span><span class="font-mono neon-purple">${gs.stocks.divStock.shares} shares · ${fmtC(gs.stocks.divStock.shares * gs.stocks.divStock.price)}</span></div>`;
-    if(btc.amount > 0) html += `<div class="flex justify-between"><span class="text-slate-400">Bitcoin</span><span class="font-mono neon-yellow">${btc.amount.toFixed(4)} BTC · ${fmtC(btc.amount * btc.price)}</span></div>`;
-    list.innerHTML = html;
-  } else {
-    summaryEl.classList.add('hidden');
+function renderStatRow(label, val, max=100) {
+  const pct = (val/max)*100;
+  const color = statBarColor(pct);
+  return `<div class="stat-row">
+    <span class="stat-label" style="font-size:10px">${label}</span>
+    <div class="stat-bar-wrap"><div class="stat-bar" style="width:${pct}%;background:${color}"></div></div>
+    <span class="stat-val" style="color:${color}">${Math.round(val)}</span>
+  </div>`;
+}
+
+function renderStatus() {
+  document.getElementById('stats-physical').innerHTML =
+    renderStatRow('Health',G.health) +
+    renderStatRow('Appearance',G.appearance) +
+    renderStatRow('Stamina',G.stamina) +
+    renderStatRow('Immune',G.immune);
+
+  document.getElementById('stats-mental').innerHTML =
+    renderStatRow('Smarts',G.smarts) +
+    renderStatRow('Sanity',G.sanity) +
+    renderStatRow('Stress',G.stress) +
+    renderStatRow('Focus',G.focus);
+
+  const creditColor = G.creditScore >= 700 ? 'var(--green)' : G.creditScore >= 600 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('stats-social').innerHTML =
+    renderStatRow('Reputation',G.reputation) +
+    renderStatRow('Charisma',G.charisma) +
+    renderStatRow('Karma',G.karma) +
+    `<div class="stat-row">
+      <span class="stat-label" style="font-size:10px">Credit</span>
+      <div class="stat-bar-wrap"><div class="stat-bar" style="width:${((G.creditScore-300)/550)*100}%;background:${creditColor}"></div></div>
+      <span class="stat-val" style="color:${creditColor}">${G.creditScore}</span>
+    </div>`;
+
+  // Traits
+  const traitsHtml = G.traits.map(tid => {
+    const t = TRAITS.find(x=>x.id===tid);
+    if(!t) return '';
+    return `<span class="trait-chip trait-${t.type}" title="${t.desc}">${t.name}</span>`;
+  }).join('');
+  document.getElementById('traits-panel').innerHTML = traitsHtml || '<span style="color:var(--text-muted);font-size:11px">No special traits</span>';
+
+  // Life stage
+  const diseases = G.diseases.map(d=>{
+    const def = DISEASES.find(x=>x.id===d.id);
+    return def ? `<span class="badge badge-red">⚕ ${def.name} (${d.remaining}qtrs)</span>` : '';
+  }).join(' ');
+  document.getElementById('life-stage-info').innerHTML =
+    `<b>${getLifeStage()}</b> — ${G.name}, ${G.gender}<br>
+    Education: <b>${['None','High School','Bachelor\'s','Master\'s'][G.education]}</b><br>
+    ${G.inSchool ? `<span class="badge badge-blue">📚 In School (GPA: ${G.gpa.toFixed(0)})</span><br>` : ''}
+    ${G.inPrison ? `<span class="badge badge-red">🔒 INCARCERATED</span><br>` : ''}
+    ${diseases}
+    ${G.pandemicActive ? '<br><span class="badge badge-orange">🦠 Pandemic Active</span>' : ''}
+    ${G.warActive ? '<br><span class="badge badge-red">⚔️ War Active</span>' : ''}
+    ${G.economy !== 'normal' ? `<br><span class="badge badge-${G.economy==='boom'?'green':'red'}">${G.economy==='boom'?'📈 Economic Boom':'📉 Recession'}</span>` : ''}`;
+}
+
+function renderActivities() {
+  const prisonNotice = document.getElementById('prison-notice');
+  prisonNotice.style.display = G.inPrison ? 'block' : 'none';
+  if(G.inPrison) document.getElementById('prison-time').textContent = `${G.prisonQuarters} quarters remaining`;
+
+  const list = document.getElementById('activities-list');
+  const acts = getActivities();
+  if(acts.length === 0) {
+    list.innerHTML = '<div style="color:var(--text-muted);font-size:11px;padding:10px">No activities available at this life stage.</div>';
+    return;
   }
-  
-  // HYSA update in market tab
-  document.getElementById('hysaCash').textContent = fmtC(Math.max(0, gs.cash));
-  document.getElementById('hysaMonthlyInt').textContent = fmtC(Math.max(0, gs.cash) * 0.04/12);
-}
-
-function drawMiniChart(canvasId, history, color) {
-  const canvas = document.getElementById(canvasId);
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const w = canvas.width;
-  const h = canvas.height;
-  ctx.clearRect(0, 0, w, h);
-  
-  if(history.length < 2) return;
-  
-  const min = Math.min(...history);
-  const max = Math.max(...history);
-  const range = max - min || 1;
-  
-  // Gradient fill
-  const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, color + '40');
-  grad.addColorStop(1, color + '00');
-  
-  ctx.beginPath();
-  history.forEach((val, i) => {
-    const x = (i / (history.length - 1)) * w;
-    const y = h - ((val - min) / range) * (h - 4) - 2;
-    if(i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  });
-  
-  // Fill area
-  ctx.lineTo(w, h);
-  ctx.lineTo(0, h);
-  ctx.closePath();
-  ctx.fillStyle = grad;
-  ctx.fill();
-  
-  // Draw line
-  ctx.beginPath();
-  history.forEach((val, i) => {
-    const x = (i / (history.length - 1)) * w;
-    const y = h - ((val - min) / range) * (h - 4) - 2;
-    if(i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  });
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-}
-
-function renderRealEstate() {
-  const gs = gameState;
-  
-  // Update prices
-  document.getElementById('resPrice').textContent = fmtC(gs.currentResPrice);
-  document.getElementById('comPrice').textContent = fmtC(gs.currentComPrice);
-  document.getElementById('resDownPayment').textContent = fmtC(gs.currentResPrice * 0.20);
-  document.getElementById('resMortgage').textContent = fmtC(gs.currentResPrice * 0.80);
-  document.getElementById('comDownPayment').textContent = fmtC(gs.currentComPrice * 0.25);
-  document.getElementById('comMortgage').textContent = fmtC(gs.currentComPrice * 0.75);
-  
-  // Loan
-  document.getElementById('loanBalance').textContent = fmtC(gs.studentLoanBalance);
-  document.getElementById('loanMonthlyInt').textContent = fmtC(gs.studentLoanBalance * gs.studentLoanRate / 12);
-  
-  if(gs.studentLoanBalance > 0) {
-    const bal = gs.studentLoanBalance;
-    const rate = gs.studentLoanRate / 12;
-    const pmt = gs.minLoanPayment;
-    const months = bal > 0 ? Math.ceil(-Math.log(1 - (rate * bal / pmt)) / Math.log(1 + rate)) : 0;
-    document.getElementById('loanPayoffMonths').textContent = `~${months} months`;
-  } else {
-    document.getElementById('loanPayoffMonths').textContent = 'PAID OFF! ✅';
-  }
-  
-  const paidPct = ((1 - gs.studentLoanBalance / gs.studentLoanOriginal) * 100).toFixed(1);
-  document.getElementById('loanProgress').style.width = Math.max(0, paidPct) + '%';
-  document.getElementById('loanPaidPct').textContent = paidPct + '%';
-  
-  // Properties owned
-  const propsSection = document.getElementById('propertiesOwned');
-  const propsList = document.getElementById('propertiesList');
-  
-  if(gs.properties.length > 0) {
-    propsSection.classList.remove('hidden');
-    propsList.innerHTML = gs.properties.map((prop, idx) => `
-      <div class="glass-card p-3">
-        <div class="flex justify-between items-start mb-2">
-          <div>
-            <div class="font-semibold text-sm text-white">${prop.name}</div>
-            <div class="text-xs text-slate-500">${prop.type === 'residential' ? 'Residential' : 'Commercial'} Property</div>
-          </div>
-          <div class="text-right">
-            <div class="font-mono neon-blue text-sm">${fmtC(prop.value)}</div>
-            <div class="text-xs ${prop.value >= prop.purchasePrice ? 'neon-green' : 'neon-red'}">${prop.value >= prop.purchasePrice ? '+' : ''}${((prop.value/prop.purchasePrice-1)*100).toFixed(1)}% from purchase</div>
-          </div>
-        </div>
-        <div class="grid grid-cols-3 gap-2 text-xs text-slate-400">
-          <div>Rental: <span class="neon-green">$${fmt(prop.rentalIncome)}/mo</span></div>
-          <div>Costs: <span class="neon-red">$${fmt(prop.maintenanceCost)}/mo</span></div>
-          <div>Mortgage: <span class="neon-red">${prop.mortgage > 0 ? fmtC(prop.mortgage) : '✅ Paid'}</span></div>
-        </div>
-        ${prop.mortgage > 0 ? `<div class="mt-1 progress-bar"><div class="progress-fill" style="width:${((1 - prop.mortgage / (prop.type === 'residential' ? gs.currentResPrice*0.8 : gs.currentComPrice*0.75))*100).toFixed(0)}%;background:#4ade80"></div></div>` : ''}
+  list.innerHTML = acts.map(a => `
+    <button class="act-btn" onclick="doActivity('${a.id}')" ${!a.available||G.ap<=0?'disabled':''}>
+      <div>
+        <div class="act-btn-name">${a.name}</div>
+        <div class="act-btn-desc">${a.desc}</div>
       </div>
-    `).join('');
-  } else {
-    propsSection.classList.add('hidden');
+      <div class="act-btn-cost">
+        <span class="cost-ap">${a.apCost > 0 ? a.apCost+' AP' : '—'}</span>
+        ${a.moneyCost > 0 ? `<span class="cost-money">${fmtMoney(a.moneyCost)}</span>` : ''}
+      </div>
+    </button>
+  `).join('');
+}
+
+function doActivity(id) {
+  const acts = getActivities();
+  const act = acts.find(a=>a.id===id);
+  if(act && act.action && act.available) {
+    act.action();
+    renderAll();
+    setTimeout(processDialogQueue, 200);
   }
+}
+
+function renderFinance() {
+  const totalDebt = G.debts.reduce((s,d)=>s+d.amount,0);
+  const propVal = G.properties.reduce((s,p)=>s+p.value,0);
+  const portfolioVal = ASSETS.reduce((s,a)=>s+G.portfolio[a.id]*G.assetPrices[a.id],0);
+
+  let debtRows = G.debts.map(d=>`
+    <div class="fin-row">
+      <span class="fin-label">${d.name}</span>
+      <span class="fin-val neg">-${fmtMoney(d.amount)}<br><span style="font-size:9px;color:var(--text-muted)">${(d.rate*100).toFixed(1)}% APR</span></span>
+    </div>
+  `).join('') || '<div style="color:var(--text-muted);font-size:11px;padding:6px 0">No active debts. 🎉</div>';
+
+  let propRows = G.properties.map(p=>`
+    <div class="fin-row">
+      <span class="fin-label">${p.name}</span>
+      <span class="fin-val pos">${fmtMoney(p.value)}</span>
+    </div>
+  `).join('') || '<div style="color:var(--text-muted);font-size:11px;padding:6px 0">No properties owned.</div>';
+
+  document.getElementById('finance-panel').innerHTML = `
+    <div class="section-hdr">Overview</div>
+    <div class="card">
+      <div class="fin-row"><span class="fin-label">Cash</span><span class="fin-val ${G.cash<0?'neg':'pos'}">${fmtMoney(G.cash)}</span></div>
+      <div class="fin-row"><span class="fin-label">Net Worth</span><span class="fin-val ${G.netWorth<0?'neg':'pos'}">${fmtMoney(G.netWorth)}</span></div>
+      <div class="fin-row"><span class="fin-label">Portfolio</span><span class="fin-val pos">${fmtMoney(portfolioVal)}</span></div>
+      <div class="fin-row"><span class="fin-label">Properties</span><span class="fin-val pos">${fmtMoney(propVal)}</span></div>
+      <div class="fin-row"><span class="fin-label">Total Debt</span><span class="fin-val neg">-${fmtMoney(totalDebt)}</span></div>
+      <div class="fin-row"><span class="fin-label">Credit Score</span><span class="fin-val" style="color:${G.creditScore>=700?'var(--green)':G.creditScore>=600?'var(--yellow)':'var(--red)'}">${G.creditScore}</span></div>
+    </div>
+    <div class="section-hdr">Income</div>
+    <div class="card">
+      <div class="fin-row"><span class="fin-label">Salary/yr</span><span class="fin-val pos">${fmtMoney(G.salary)}</span></div>
+      <div class="fin-row"><span class="fin-label">After Tax/yr</span><span class="fin-val pos">${fmtMoney(G.salary - calcTax(G.salary))}</span></div>
+      <div class="fin-row"><span class="fin-label">Est. CoL/qtr</span><span class="fin-val neg">-${fmtMoney(2500*G.inflation)}</span></div>
+      <div class="fin-row"><span class="fin-label">Inflation</span><span class="fin-val" style="color:var(--yellow)">${((G.inflation-1)*100).toFixed(1)}% cumul.</span></div>
+    </div>
+    <div class="section-hdr">Properties</div>
+    <div class="card">${propRows}</div>
+    <div class="section-hdr">Debts</div>
+    <div class="card">${debtRows}</div>
+  `;
+}
+
+function renderMarket() {
+  const panel = document.getElementById('market-panel');
+  const rows = ASSETS.map(a => {
+    const price = G.assetPrices[a.id];
+    const hist = G.assetHistory[a.id];
+    const prev = hist.length >= 2 ? hist[hist.length-2] : price;
+    const change = ((price-prev)/prev)*100;
+    const owned = G.portfolio[a.id];
+    const value = owned * price;
+    return `
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:8px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div>
+            <div style="font-size:11px;font-weight:600;">${a.name}</div>
+            <div style="font-size:9px;color:var(--text-muted);">${a.type.toUpperCase()} · Volatility: ${(a.volatility*100).toFixed(0)}%</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:13px;font-weight:700;">${a.type==='crypto'?'$'+price.toFixed(2):fmtMoney(price)}</div>
+            <div style="font-size:10px;color:${change>=0?'var(--green)':'var(--red)'}">${change>=0?'▲':'▼'}${Math.abs(change).toFixed(2)}%</div>
+          </div>
+        </div>
+        ${owned > 0 ? `<div style="font-size:10px;color:var(--text-secondary);margin-bottom:6px;">Owned: <b>${owned}</b> units = ${fmtMoney(value)}</div>` : ''}
+        <div style="display:flex;gap:4px;">
+          <button onclick="buyAsset('${a.id}',1)" style="flex:1;padding:4px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:var(--green);border-radius:4px;cursor:pointer;font-size:10px;" ${G.cash<price||G.ap<10?'disabled':''}>Buy 1</button>
+          <button onclick="buyAsset('${a.id}',5)" style="flex:1;padding:4px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:var(--green);border-radius:4px;cursor:pointer;font-size:10px;" ${G.cash<price*5||G.ap<10?'disabled':''}>Buy 5</button>
+          <button onclick="sellAsset('${a.id}',1)" style="flex:1;padding:4px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--red);border-radius:4px;cursor:pointer;font-size:10px;" ${owned<1||G.ap<5?'disabled':''}>Sell 1</button>
+          <button onclick="sellAsset('${a.id}',${owned})" style="flex:1;padding:4px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--red);border-radius:4px;cursor:pointer;font-size:10px;" ${owned<1||G.ap<5?'disabled':''}>Sell All</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  panel.innerHTML = `
+    <div class="section-hdr">Market State: <span style="color:${G.economy==='boom'?'var(--green)':G.economy==='recession'?'var(--red)':'var(--text-primary)'}">${G.economy.toUpperCase()}</span></div>
+    <div style="padding:4px 0 8px;font-size:10px;color:var(--text-muted)">Each trade costs 10 AP (buy) or 5 AP (sell). Markets fluctuate every quarter.</div>
+    ${rows}
+    <div class="section-hdr" style="margin-top:4px;">Portfolio Value</div>
+    <div class="card">
+      ${ASSETS.filter(a=>G.portfolio[a.id]>0).map(a=>`
+        <div class="portfolio-entry">
+          <span>${a.name}</span>
+          <span style="color:var(--green)">${fmtMoney(G.portfolio[a.id]*G.assetPrices[a.id])}</span>
+        </div>
+      `).join('') || '<div style="color:var(--text-muted);font-size:11px">No investments held.</div>'}
+    </div>
+  `;
+}
+
+function renderRelations() {
+  const panel = document.getElementById('relations-panel');
+  if(G.npcs.length === 0) {
+    panel.innerHTML = '<div style="color:var(--text-muted);font-size:11px;padding:10px">No relationships yet.</div>';
+    return;
+  }
+  panel.innerHTML = G.npcs.filter(n=>n.alive).map(npc => {
+    const relColor = npc.relationship >= 70 ? 'var(--green)' : npc.relationship >= 40 ? 'var(--yellow)' : 'var(--red)';
+    return `<div class="npc-card">
+      <div class="npc-header">
+        <div class="npc-avatar">${npc.emoji}</div>
+        <div>
+          <div class="npc-name">${npc.name}</div>
+          <div class="npc-relation">${npc.relation} · Age ${npc.age}</div>
+        </div>
+      </div>
+      ${renderStatRow('Relationship', npc.relationship)}
+      ${renderStatRow('Trust', npc.trust)}
+      <div class="npc-actions">
+        <button class="npc-act" onclick="npcInteract('${npc.id}','talk')">💬 Talk (15AP)</button>
+        <button class="npc-act" onclick="npcInteract('${npc.id}','gift')">🎁 Gift (20AP,$200)</button>
+        <button class="npc-act" onclick="npcInteract('${npc.id}','ask_money')">💸 Ask Loan</button>
+        ${npc.relation==='Partner'||npc.relation==='Spouse'?`<button class="npc-act" onclick="npcInteract('${npc.id}','breakup')" style="color:var(--red)">💔 Break Up</button>`:''}
+      </div>
+    </div>`;
+  }).join('') + G.npcs.filter(n=>!n.alive).map(npc =>
+    `<div style="padding:6px;font-size:11px;color:var(--text-muted);text-decoration:line-through">${npc.emoji} ${npc.name} (${npc.relation}) — Deceased</div>`
+  ).join('');
+}
+
+function npcInteract(npcId, action) {
+  const npc = G.npcs.find(n=>n.id===npcId);
+  if(!npc) return;
+  if(action === 'talk') {
+    if(G.ap < 15) { addLog('Not enough AP.','warn'); return; }
+    useAP(15);
+    npc.relationship = clamp(npc.relationship + 5 + rng(5), 0, 100);
+    npc.trust = clamp(npc.trust + 3, 0, 100);
+    addLog(`You had a good conversation with <b>${npc.name}</b>. Relationship +5.`, 'success');
+  } else if(action === 'gift') {
+    if(G.ap < 20 || G.cash < 200) { addLog('Not enough AP or cash.','warn'); return; }
+    useAP(20); G.cash -= 200;
+    npc.relationship = clamp(npc.relationship + 10 + rng(8), 0, 100);
+    npc.trust = clamp(npc.trust + 5, 0, 100);
+    addLog(`You gave a gift to <b>${npc.name}</b>. Relationship +10.`, 'success');
+  } else if(action === 'ask_money') {
+    const ask = rng(2000) + 500;
+    if(npc.trust < 40) { addLog(`${npc.name} doesn't trust you enough to lend money.`,'warn'); return; }
+    const chance = npc.trust / 100 * npc.relationship / 100;
+    if(Math.random() < chance) {
+      G.cash += ask;
+      npc.dependency = clamp(npc.dependency + 20, 0, 100);
+      npc.trust = clamp(npc.trust - 10, 0, 100);
+      addLog(`<b>${npc.name}</b> lent you ${fmtMoney(ask)}. Their trust decreased.`, 'warn');
+    } else {
+      addLog(`<b>${npc.name}</b> refused to lend you money.`, 'warn');
+    }
+  } else if(action === 'breakup') {
+    addLog(`💔 You ended things with <b>${npc.name}</b>.`, 'danger');
+    npc.relation = 'Ex';
+    modStat('sanity', -10); modStress(15);
+  }
+  renderAll();
 }
 
 function renderCareer() {
-  const gs = gameState;
-  const nw = calcNetWorth();
-  
-  document.getElementById('currentJobTitle').textContent = CAREER_LEVELS[gs.careerIndex].title;
-  document.getElementById('currentSalary').textContent = `$${fmt(gs.salary)}/mo`;
-  
-  // Insurance buttons
-  const hBtn = document.getElementById('healthInsBtn');
-  const hStatus = document.getElementById('healthInsStatusCard');
-  if(gs.hasHealthInsurance) {
-    hBtn.textContent = 'Cancel Health Insurance';
-    hBtn.className = 'btn-danger w-full text-white font-semibold py-2 rounded-lg cursor-pointer text-sm';
-    hStatus.textContent = '✓ Covered';
-    hStatus.className = 'font-semibold text-green-400';
-    document.getElementById('healthInsStatus').textContent = '✓ Active';
-    document.getElementById('healthInsStatus').className = 'text-xs font-semibold text-green-400';
-  } else {
-    hBtn.textContent = 'Buy Health Insurance ($150/mo)';
-    hBtn.className = 'btn-primary w-full text-white font-semibold py-2 rounded-lg cursor-pointer text-sm';
-    hStatus.textContent = '✗ Not Covered';
-    hStatus.className = 'font-semibold text-red-400';
-  }
-  
-  const pBtn = document.getElementById('propInsBtn');
-  const pStatus = document.getElementById('propInsStatusCard');
-  if(gs.hasPropertyInsurance) {
-    pBtn.textContent = 'Cancel Property Insurance';
-    pBtn.className = 'btn-danger w-full text-white font-semibold py-2 rounded-lg cursor-pointer text-sm';
-    pStatus.textContent = '✓ Covered';
-    pStatus.className = 'font-semibold text-green-400';
-  } else {
-    pBtn.textContent = 'Buy Property Insurance ($200/mo)';
-    pBtn.className = 'btn-primary w-full text-white font-semibold py-2 rounded-lg cursor-pointer text-sm';
-    pStatus.textContent = '✗ Not Covered';
-    pStatus.className = 'font-semibold text-red-400';
-  }
-  
-  // Side hustles
-  const sh = gs.sideHustles;
-  document.getElementById('freelanceStatus').textContent = sh.freelance ? 'Active (+$500/mo)' : 'Inactive';
-  document.getElementById('freelanceStatus').className = sh.freelance ? 'text-green-400 font-semibold text-xs' : 'text-red-400 font-semibold text-xs';
-  document.getElementById('freelanceBtn').textContent = sh.freelance ? 'Stop Freelancing' : 'Start Freelancing';
-  document.getElementById('freelanceBtn').className = sh.freelance ? 'btn-danger w-full text-white text-xs py-1.5 rounded-lg cursor-pointer font-semibold' : 'btn-primary w-full text-white text-xs py-1.5 rounded-lg cursor-pointer font-semibold';
-  
-  document.getElementById('contentStatus').textContent = sh.content ? `Active (${sh.contentMonths} months)` : 'Inactive';
-  document.getElementById('contentStatus').className = sh.content ? 'text-green-400 font-semibold text-xs' : 'text-red-400 font-semibold text-xs';
-  document.getElementById('contentBtn').textContent = sh.content ? 'Stop Content Creation' : 'Start Content Creation';
-  document.getElementById('contentBtn').className = sh.content ? 'btn-danger w-full text-white text-xs py-1.5 rounded-lg cursor-pointer font-semibold' : 'btn-primary w-full text-white text-xs py-1.5 rounded-lg cursor-pointer font-semibold';
-  
-  document.getElementById('bizStatus').textContent = sh.business ? 'Active (+~$800/mo)' : 'Inactive';
-  document.getElementById('bizStatus').className = sh.business ? 'text-green-400 font-semibold text-xs' : 'text-red-400 font-semibold text-xs';
-  document.getElementById('bizBtn').textContent = sh.business ? 'Close Business' : 'Start Business ($2,000)';
-  document.getElementById('bizBtn').className = sh.business ? 'btn-danger w-full text-white text-xs py-1.5 rounded-lg cursor-pointer font-semibold' : 'btn-primary w-full text-white text-xs py-1.5 rounded-lg cursor-pointer font-semibold';
-  
-  // Career progression
-  const careerDiv = document.getElementById('careerProgress');
-  careerDiv.innerHTML = CAREER_LEVELS.map((lv, idx) => {
-    const isCurrentOrBelow = idx <= gs.careerIndex;
-    const isEligible = nw >= lv.netWorthReq && gs.creditScore >= lv.creditReq && idx > gs.careerIndex;
-    const nwMet = nw >= lv.netWorthReq;
-    const crMet = gs.creditScore >= lv.creditReq;
-    
-    return `<div class="flex items-center justify-between p-2 rounded-lg ${isCurrentOrBelow ? 'bg-blue-900/20 border border-blue-800/30' : 'bg-slate-900/40'} text-xs mb-1">
-      <div class="flex items-center gap-2">
-        <span class="${isCurrentOrBelow ? 'text-blue-400' : 'text-slate-600'}">${idx <= gs.careerIndex ? '✅' : isEligible ? '🔓' : '🔒'}</span>
-        <div>
-          <div class="${isCurrentOrBelow ? 'text-white font-semibold' : 'text-slate-400'}">${lv.title}</div>
-          <div class="text-slate-600">NW: $${fmt(lv.netWorthReq)} · Credit: ${lv.creditReq} <span class="${!nwMet && idx > gs.careerIndex ? 'text-red-500' : 'text-green-500'}">${nwMet ? '✓' : '✗'}</span> <span class="${!crMet && idx > gs.careerIndex ? 'text-red-500' : 'text-green-500'}">${crMet ? '✓' : '✗'}</span></div>
+  const panel = document.getElementById('career-panel');
+  const job = JOBS.find(j=>j.id===G.job);
+  const nextJobs = JOBS.filter(j =>
+    j.id !== 'none' && j.id !== G.job &&
+    G.age >= j.minAge && G.smarts >= j.minSmarts && G.education >= j.minEdu &&
+    j.baseSalary > (G.salary || 0)
+  ).slice(0,3);
+
+  panel.innerHTML = `
+    <div class="section-hdr">Current Job</div>
+    <div class="card">
+      <div class="fin-row"><span class="fin-label">Title</span><span class="fin-val">${job ? job.title : 'Unemployed'}</span></div>
+      <div class="fin-row"><span class="fin-label">Salary/yr</span><span class="fin-val pos">${fmtMoney(G.salary)}</span></div>
+      <div class="fin-row"><span class="fin-label">Performance</span><span class="fin-val" style="color:${statBarColor(G.jobPerformance)}">${G.jobPerformance}/100</span></div>
+      <div class="fin-row"><span class="fin-label">Quarters Held</span><span class="fin-val">${G.jobQuartersHeld}</span></div>
+    </div>
+    ${G.inSchool ? `
+    <div class="section-hdr">School Progress</div>
+    <div class="card">
+      <div class="fin-row"><span class="fin-label">Program</span><span class="fin-val">${G.schoolType}</span></div>
+      <div class="fin-row"><span class="fin-label">GPA</span><span class="fin-val" style="color:${statBarColor(G.gpa)}">${G.gpa.toFixed(0)}/100</span></div>
+      <div class="fin-row"><span class="fin-label">Total Debt</span><span class="fin-val neg">${fmtMoney(G.schoolDebt)}</span></div>
+    </div>` : ''}
+    <div class="section-hdr">Career Unlocks</div>
+    <div class="card">
+      ${nextJobs.length ? nextJobs.map(j=>`
+        <div class="fin-row">
+          <span class="fin-label">${j.title}</span>
+          <span class="fin-val pos">${fmtMoney(j.baseSalary)}</span>
         </div>
-      </div>
-      <div class="text-right">
-        <div class="${isCurrentOrBelow ? 'neon-green' : 'text-slate-500'}">$${fmt(lv.salary)}/mo</div>
-        ${isEligible && idx > gs.careerIndex ? `<button onclick="applyForPromotion(${idx})" class="btn-success text-white px-2 py-0.5 rounded text-xs cursor-pointer mt-0.5">Promote!</button>` : ''}
-      </div>
-    </div>`;
-  }).join('');
+        <div style="font-size:9px;color:var(--text-muted);padding-bottom:4px">Req: Age ${j.minAge}, Smarts ${j.minSmarts}, Edu Lvl ${j.minEdu}</div>
+      `).join('') : '<div style="color:var(--text-muted);font-size:11px">No better jobs available yet.</div>'}
+    </div>
+  `;
+  if(G.job !== 'none') G.jobQuartersHeld++;
 }
 
-// ============================================================
-// UI HELPERS
-// ============================================================
+function renderSidebarRight() {
+  // Character profile
+  document.getElementById('char-profile').innerHTML = `
+    <div style="font-size:18px;text-align:center;margin-bottom:4px;">${G.gender === 'Male' ? '👨' : '👩'}</div>
+    <div style="text-align:center;font-weight:700;font-size:14px;">${G.name}</div>
+    <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-bottom:8px;">${getLifeStage()} · ${G.gender}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;">
+      ${G.inPrison?'<span class="badge badge-red">🔒 Prison</span>':''}
+      ${G.inSchool?'<span class="badge badge-blue">📚 Student</span>':''}
+      ${G.company?'<span class="badge badge-purple">🏢 Founder</span>':''}
+      ${G.npcs.find(n=>n.relation==='Spouse')?'<span class="badge badge-green">💍 Married</span>':''}
+      ${G.npcs.find(n=>n.relation==='Child')?'<span class="badge badge-yellow">👶 Parent</span>':''}
+      ${G.hasPrenup?'<span class="badge badge-blue">📜 Prenup</span>':''}
+      ${G.criminalRecord>0?`<span class="badge badge-red">🚔 Criminal x${G.criminalRecord}</span>`:''}
+    </div>
+  `;
+
+  // Active events
+  const eventsHtml = [
+    G.pandemicActive ? '<div style="font-size:11px;padding:3px 0;color:var(--orange)">🦠 Pandemic (<span style="color:var(--text-muted)">' + G.pandemicQuarters + ' qtrs left)</span></div>' : '',
+    G.warActive ? '<div style="font-size:11px;padding:3px 0;color:var(--red)">⚔️ Armed Conflict</div>' : '',
+    G.economy !== 'normal' ? `<div style="font-size:11px;padding:3px 0;color:${G.economy==='boom'?'var(--green)':'var(--red)'}">📊 ${G.economy === 'boom' ? 'Economic Boom' : 'Recession'}</div>` : '',
+    ...G.diseases.map(d=>{const def=DISEASES.find(x=>x.id===d.id);return def?`<div style="font-size:11px;padding:3px 0;color:var(--red)">⚕ ${def.name} (${d.remaining} qtrs)</div>`:'';}),
+    G.burnoutStacks > 0 ? `<div style="font-size:11px;padding:3px 0;color:var(--yellow)">🔥 Burnout Stack: ${G.burnoutStacks}/2</div>` : '',
+  ].filter(Boolean).join('');
+  document.getElementById('active-events').innerHTML = eventsHtml || '<div style="font-size:11px;color:var(--text-muted)">No active events.</div>';
+
+  // World state
+  document.getElementById('world-state').innerHTML = `
+    <div class="fin-row"><span class="fin-label">Economy</span><span class="fin-val" style="color:${G.economy==='boom'?'var(--green)':G.economy==='recession'?'var(--red)':'var(--text-primary)'}">${G.economy}</span></div>
+    <div class="fin-row"><span class="fin-label">Inflation</span><span class="fin-val" style="color:var(--yellow)">${(G.inflationRate*100).toFixed(1)}%/yr</span></div>
+    <div class="fin-row"><span class="fin-label">AP Available</span><span class="fin-val ${G.ap<30?'neg':''}">${G.ap} / ${G.maxAP}</span></div>
+  `;
+
+  // Debt panel
+  const totalDebt = G.debts.reduce((s,d)=>s+d.amount,0);
+  document.getElementById('debt-panel').innerHTML = G.debts.length > 0 ?
+    G.debts.map(d=>`<div class="fin-row"><span class="fin-label" style="font-size:10px">${d.name}</span><span class="fin-val neg" style="font-size:11px">${fmtMoney(d.amount)}</span></div>`).join('') +
+    `<div style="margin-top:4px;font-size:11px;color:var(--red);font-weight:600">Total: ${fmtMoney(totalDebt)}</div>`
+    : '<div style="font-size:11px;color:var(--green)">Debt-free! 🎉</div>';
+
+  // Business panel
+  if(G.company) {
+    const co = G.company;
+    document.getElementById('business-panel').innerHTML = `
+      <div style="font-weight:600;font-size:12px;margin-bottom:6px;">${co.name}</div>
+      <div class="company-row"><span>Employees</span><span>${co.employees}</span></div>
+      <div class="company-row"><span>Salary/emp/qtr</span><span>${fmtMoney(co.employeeSalary)}</span></div>
+      <div class="company-row"><span>Marketing/qtr</span><span>${fmtMoney(co.marketing)}</span></div>
+      <div class="company-row"><span>Product Price</span><span>${fmtMoney(co.price)}</span></div>
+      <div class="company-row"><span>Last Revenue</span><span style="color:var(--green)">${fmtMoney(co.revenue||0)}</span></div>
+      <div class="company-row"><span>Last Profit</span><span style="color:${(co.profit||0)>=0?'var(--green)':'var(--red)'}">${fmtMoney(co.profit||0)}</span></div>
+      <div class="company-row"><span>Neg. CF Qtrs</span><span style="color:${co.cashflowNeg>0?'var(--red)':'var(--green)'}">  ${co.cashflowNeg}/2</span></div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">
+        <button onclick="bizAction('hire')" class="act-btn" style="font-size:10px;padding:4px 8px;">+ Hire Employee ($5K/qtr)</button>
+        <button onclick="bizAction('fire')" class="act-btn" style="font-size:10px;padding:4px 8px;" ${co.employees<=1?'disabled':''}>- Fire Employee</button>
+        <button onclick="bizAction('marketing')" class="act-btn" style="font-size:10px;padding:4px 8px;">Boost Marketing (+$2K)</button>
+        <button onclick="bizAction('close')" class="act-btn" style="font-size:10px;padding:4px 8px;color:var(--red);">🗑 Close Business</button>
+      </div>
+    `;
+  } else {
+    document.getElementById('business-panel').innerHTML = '<div style="font-size:11px;color:var(--text-muted)">No business. Start one from Activities.</div>';
+  }
+
+  // Property panel
+  document.getElementById('property-panel').innerHTML = G.properties.length > 0 ?
+    G.properties.map(p=>`
+      <div style="font-size:11px;padding:4px 0;">
+        <div style="font-weight:600">${p.name}</div>
+        <div style="color:var(--green)">${fmtMoney(p.value)}</div>
+        ${p.mortgage?`<div style="color:var(--red)">Mortgage: ${fmtMoney(p.mortgage)}/qtr</div>`:''}
+      </div>
+    `).join('') : '<div style="font-size:11px;color:var(--text-muted)">No properties owned.</div>';
+}
+
+function bizAction(action) {
+  if(!G.company) return;
+  const co = G.company;
+  if(action === 'hire') {
+    co.employees++;
+    addLog(`Hired a new employee. Monthly payroll increases.`, 'info');
+  } else if(action === 'fire') {
+    if(co.employees > 1) { co.employees--; addLog(`Fired an employee. Payroll reduced.`, 'warn'); }
+  } else if(action === 'marketing') {
+    if(G.cash >= 2000) { G.cash -= 2000; co.marketing += 2000; addLog(`Boosted marketing budget by $2,000.`, 'info'); }
+    else { addLog(`Insufficient cash for marketing boost.`, 'warn'); }
+  } else if(action === 'close') {
+    addLog(`🏢 Closed <b>${co.name}</b>. Business operations ceased.`, 'warn');
+    G.company = null;
+  }
+  renderAll();
+}
+
+function renderTicker() {
+  const items = ASSETS.map(a => {
+    const price = G.assetPrices[a.id];
+    const hist = G.assetHistory[a.id];
+    const prev = hist.length >= 2 ? hist[hist.length-2] : price;
+    const change = ((price-prev)/prev)*100;
+    const dir = change >= 0 ? 'up' : 'dn';
+    const arrow = change >= 0 ? '▲' : '▼';
+    return `<span class="ticker-item">${a.name.split('(')[1].replace(')','')} <span class="${dir}">${arrow}${Math.abs(change).toFixed(2)}%</span></span>`;
+  });
+  document.getElementById('ticker').innerHTML = [...items, ...items].join(' &nbsp;·&nbsp; ');
+}
 
 function switchTab(tab) {
-  ['markets','realestate','career'].forEach(t => {
-    document.getElementById(`tab-${t}`).classList.remove('active');
-    document.getElementById(`content-${t}`).classList.remove('active');
+  ['status','activities','finance','invest','relations','career'].forEach(t => {
+    document.getElementById(`content-${t}`).classList.toggle('active', t===tab);
+    document.getElementById(`tab-${t}`).classList.toggle('active', t===tab);
   });
-  document.getElementById(`tab-${tab}`).classList.add('active');
-  document.getElementById(`content-${tab}`).classList.add('active');
-}
-
-function addLog(msg, type = 'info') {
-  const logEl = document.getElementById('eventLog');
-  const div = document.createElement('div');
-  div.className = `log-entry log-${type} toast-item`;
-  const time = `${MONTHS[gameState.month]} ${gameState.year}`;
-  div.innerHTML = `<span class="text-slate-600 mr-1">[${time}]</span>${msg}`;
-  logEl.insertBefore(div, logEl.firstChild);
-  // Keep log manageable
-  while(logEl.children.length > 50) logEl.removeChild(logEl.lastChild);
-}
-
-function clearLog() {
-  document.getElementById('eventLog').innerHTML = '';
-}
-
-function showGameModal(type, nw) {
-  const modal = document.getElementById('gameModal');
-  const icon = document.getElementById('modalIcon');
-  const title = document.getElementById('modalTitle');
-  const sub = document.getElementById('modalSubtitle');
-  const stats = document.getElementById('modalStats');
-  
-  const turns = gameState.turn;
-  const age = gameState.age;
-  
-  if(type === 'win') {
-    icon.textContent = '🏆';
-    title.textContent = 'Financial Independence Achieved!';
-    sub.textContent = `You reached $2,000,000 net worth at age ${age}!`;
-    title.className = 'text-2xl font-bold mb-2 neon-yellow';
-  } else if(type === 'passive_win') {
-    icon.textContent = '🎯';
-    title.textContent = 'Passive Income Freedom!';
-    sub.textContent = `Your passive income exceeds your expenses at age ${age}!`;
-    title.className = 'text-2xl font-bold mb-2 neon-green';
-  } else if(type === 'bankruptcy') {
-    icon.textContent = '💸';
-    title.textContent = 'Bankruptcy!';
-    sub.textContent = `You ran out of cash at age ${age}. The market crushed you.`;
-    title.className = 'text-2xl font-bold mb-2 neon-red';
-  } else {
-    icon.textContent = '🌅';
-    title.textContent = 'Retirement Age Reached';
-    const outcome = nw >= 2000000 ? '🏆 Millionaire Retiree!' : nw >= 500000 ? '👍 Comfortable Retirement' : nw >= 0 ? '😐 Modest Retirement' : '😞 Struggling in Retirement';
-    sub.textContent = outcome;
-    title.className = 'text-2xl font-bold mb-2 text-white';
-  }
-  
-  stats.textContent = `Net Worth: ${fmtC(nw)} | Turns: ${turns} | Age: ${age}`;
-  modal.style.display = 'flex';
-}
-
-function restartGame() {
-  document.getElementById('gameModal').style.display = 'none';
-  document.getElementById('eventModal').style.display = 'none';
-  document.getElementById('eventLog').innerHTML = '';
-  initGame();
 }
 
 // ============================================================
-// INIT
+// START THE GAME
 // ============================================================
 initGame();
 </script>
